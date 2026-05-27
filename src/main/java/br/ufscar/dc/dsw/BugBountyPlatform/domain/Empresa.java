@@ -2,6 +2,8 @@ package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "Empresa")
 public class Empresa extends AbstractUser {
@@ -17,6 +19,9 @@ public class Empresa extends AbstractUser {
 
     @Column(nullable = false, length = 50)
     private String setor;
+
+    @OneToMany(mappedBy = "empresa")
+    private List<Programa> programas;
 
     public Empresa() {
     }
@@ -67,6 +72,14 @@ public class Empresa extends AbstractUser {
 
     public void setSetor(String setor) {
         this.setor = setor;
+    }
+
+    public List<Programa> getProgramas() {
+        return programas;
+    }
+
+    public void setProgramas(List<Programa> programas) {
+        this.programas = programas;
     }
 
 }

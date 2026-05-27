@@ -3,6 +3,7 @@ package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "Pesquisador")
@@ -22,6 +23,9 @@ public class Pesquisador extends AbstractUser{
 
     @Column(nullable = false)
     private LocalDate dataNascimento;
+
+    @OneToMany(mappedBy = "pesquisador")
+    private List<Relatorio> relatorios;
 
     public Pesquisador() {
     }
@@ -82,4 +86,13 @@ public class Pesquisador extends AbstractUser{
     public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
+
+    public List<Relatorio> getRelatorios() {
+        return relatorios;
+    }
+
+    public void setRelatorios(List<Relatorio> relatorios) {
+        this.relatorios = relatorios;
+    }
+
 }
