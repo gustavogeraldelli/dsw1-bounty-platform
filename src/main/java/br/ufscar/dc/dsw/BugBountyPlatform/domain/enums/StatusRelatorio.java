@@ -1,4 +1,4 @@
-package br.ufscar.dc.dsw.BugBountyPlatform.domain;
+package br.ufscar.dc.dsw.BugBountyPlatform.domain.enums;
 
 public enum StatusRelatorio {
     EM_TRIAGEM,

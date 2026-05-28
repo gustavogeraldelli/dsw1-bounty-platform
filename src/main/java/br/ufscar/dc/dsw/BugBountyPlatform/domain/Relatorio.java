@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
