@@ -22,6 +22,7 @@ public class BugBountyPlatformApplication {
 	@Bean
 	public CommandLineRunner demo(IEmpresaDAO empresaDAO, IPesquisadorDAO pesquisadorDAO,
 								  IProgramaDAO programaDAO, IRelatorioDAO relatorioDAO) {
+
 		return (args) -> {
 			System.out.println("\nIniciando testes");
 
@@ -50,10 +51,10 @@ public class BugBountyPlatformApplication {
 			hacker.setSenha("123");
 			hacker.setRole("ROLE_PESQUISADOR");
 			hacker.setNome("João Silva");
-			hacker.setTelefone("11999999999");
 			hacker.setCpf("111.222.333-44");
 			hacker.setSexo("M");
 			hacker.setDataNascimento(LocalDate.of(1995, 5, 20));
+			hacker.setTelefone("11999999999");
 			pesquisadorDAO.save(hacker);
 
 			Programa progTech = new Programa();
@@ -90,12 +91,12 @@ public class BugBountyPlatformApplication {
 			}
 
 			System.out.println("\nProgramas TechCorp (ID " + empTech.getId() + "):");
-			for (Programa p : programaDAO.findByEmpresaId(empTech.getId())) {
+			for (Programa p : programaDAO.findByEmpresa(empTech)) {
 				System.out.println("- " + p.getTitulo() + " (Recompensa: R$" + p.getRecompensaMaxima() + ")");
 			}
 
 			System.out.println("\nRelatório do João Silva na TechCorp:");
-			Relatorio submissao = relatorioDAO.findByPesquisadorIdAndProgramaId(hacker.getId(), progTech.getId());
+			Relatorio submissao = relatorioDAO.findByPesquisadorAndPrograma(hacker, progTech);
 			if (submissao != null) {
 				System.out.println("- Encontrado: ID " + submissao.getId() + " | Status: " + submissao.getStatus());
 			}

@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.dao;
 
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import org.springframework.data.repository.CrudRepository;
 
@@ -10,6 +11,6 @@ public interface IProgramaDAO extends CrudRepository<Programa, Long> {
     List<Programa> findAll();
     Programa save(Programa programa);
     void deleteById(long id);
-    List<Programa> findByEmpresaId(long empresaId);
+    List<Programa> findByEmpresa(Empresa empresa);
     List<Programa> findByEmpresaSetor(String setor);
 }
