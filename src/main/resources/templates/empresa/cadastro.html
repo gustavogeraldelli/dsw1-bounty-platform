@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title th:text="${empresa.id == null} ? 'Cadastrar Empresa' : 'Editar Empresa'">Cadastro de Empresa</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0" th:text="${empresa.id == null} ? 'Registar Nova Empresa' : 'Editar Dados da Empresa'">Cadastro de Empresa</h4>
+                </div>
+                <div class="card-body">
+
+                    <form th:action="${empresa.id == null} ? @{/empresas/salvar} : @{/empresas/editar}"
+                          th:object="${empresa}" method="POST">
+
+                        <input type="hidden" th:field="*{id}" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome da Empresa</label>
+                                <input type="text" id="nome" th:field="*{nome}" class="form-control" required />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="cnpj" class="form-label">CNPJ</label>
+                                <input type="text" id="cnpj" th:field="*{cnpj}" class="form-control cnpj" required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">E-mail de Contacto</label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control" required />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="setor" class="form-label">Setor de Atuação</label>
+                                <input type="text" id="setor" th:field="*{setor}" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3" th:if="${empresa.id == null}">
+                            <label for="senha" class="form-label">Senha de Acesso</label>
+                            <input type="password" id="senha" th:field="*{senha}" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label">Descrição do Programa / Empresa</label>
+                            <textarea id="descricao" th:field="*{descricao}" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/empresas/listar}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-success">Guardar</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
