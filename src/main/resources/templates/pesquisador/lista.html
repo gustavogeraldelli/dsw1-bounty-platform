@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Lista de Pesquisadores</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Pesquisadores</h2>
+        <a class="btn btn-primary" th:href="@{/pesquisadores/cadastrar}">Novo Pesquisador</a>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="pesquisador : ${pesquisadores}">
+            <td th:text="${pesquisador.id}"></td>
+            <td th:text="${pesquisador.nome}"></td>
+            <td th:text="${pesquisador.cpf}" class="cpf"></td>
+            <td th:text="${pesquisador.email}"></td>
+            <td th:text="${pesquisador.telefone}" class="telefone"></td>
+            <td>
+                <a class="btn btn-sm btn-warning" th:href="@{/pesquisadores/editar/{id}(id=${pesquisador.id})}">Editar</a>
+                <a class="btn btn-sm btn-danger" th:href="@{/pesquisadores/excluir/{id}(id=${pesquisador.id})}"
+                   onclick="return confirm('Tem certeza que deseja excluir este pesquisador?');">Excluir</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(pesquisadores)}">
+            <td colspan="6" class="text-center">Nenhum pesquisador cadastrado.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
