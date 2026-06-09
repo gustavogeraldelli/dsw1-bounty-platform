@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title th:text="${programa.id == null} ? 'Cadastrar Programa' : 'Editar Programa'">Cadastro de Programa</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0" th:text="${programa.id == null} ? 'Cadastrar Novo Programa' : 'Editar Dados do Programa'">Cadastro</h4>
+                </div>
+                <div class="card-body">
+
+                    <form th:action="${programa.id == null} ? @{/programas/salvar} : @{/programas/editar}"
+                          th:object="${programa}" method="POST">
+
+                        <input type="hidden" th:field="*{id}" />
+
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título do Programa</label>
+                            <input type="text" id="titulo" th:field="*{titulo}" class="form-control" required
+                                   placeholder="Ex: Vulnerabilidades Web - API Principal" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="empresa" class="form-label">Empresa Responsável</label>
+                            <select id="empresa" th:field="*{empresa}" class="form-select" required>
+                                <option value="">Selecione uma Empresa...</option>
+                                <option th:each="emp : ${empresas}"
+                                        th:value="${emp.id}"
+                                        th:text="${emp.nome + ' (' + emp.setor + ')'}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="escopo" class="form-label">Escopo (Alvos permitidos)</label>
+                            <input type="text" id="escopo" th:field="*{escopo}" class="form-control" required
+                                   placeholder="Ex: *.site.com.br, api.site.com.br" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="recompensaMaxima" class="form-label">Recompensa Máxima (R$)</label>
+                                <input type="number" step="0.01" min="0" id="recompensaMaxima" th:field="*{recompensaMaxima}" class="form-control" required />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="dataLimite" class="form-label">Data Limite de Inscrição/Submissão</label>
+                                <input type="date" id="dataLimite" th:field="*{dataLimite}" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a th:href="@{/programas/listar}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-success">Salvar</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

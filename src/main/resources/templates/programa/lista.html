@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Lista de Programas</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Programas de Bug Bounty</h2>
+        <a class="btn btn-primary" th:href="@{/programas/cadastrar}">Novo Programa</a>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Empresa</th>
+            <th>Escopo</th>
+            <th>Recompensa (Máx)</th>
+            <th>Data Limite</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="programa : ${programas}">
+            <td th:text="${programa.id}"></td>
+            <td th:text="${programa.titulo}"></td>
+
+            <td th:text="${programa.empresa.nome}"></td>
+
+            <td th:text="${programa.escopo}"></td>
+
+            <td th:text="|R$ ${#numbers.formatDecimal(programa.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"></td>
+
+            <td th:text="${#temporals.format(programa.dataLimite, 'dd/MM/yyyy')}"></td>
+
+            <td>
+                <a class="btn btn-sm btn-warning" th:href="@{/programas/editar/{id}(id=${programa.id})}">Editar</a>
+                <a class="btn btn-sm btn-danger" th:href="@{/programas/excluir/{id}(id=${programa.id})}"
+                   onclick="return confirm('Tem certeza que deseja excluir este programa?');">Excluir</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(programas)}">
+            <td colspan="7" class="text-center">Nenhum programa cadastrado.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

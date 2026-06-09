@@ -1,7 +1,13 @@
 package br.ufscar.dc.dsw.BugBountyPlatform;
 
-import br.ufscar.dc.dsw.BugBountyPlatform.dao.*;
-import br.ufscar.dc.dsw.BugBountyPlatform.domain.*;
+import br.ufscar.dc.dsw.BugBountyPlatform.dao.IEmpresaDAO;
+import br.ufscar.dc.dsw.BugBountyPlatform.dao.IPesquisadorDAO;
+import br.ufscar.dc.dsw.BugBountyPlatform.dao.IProgramaDAO;
+import br.ufscar.dc.dsw.BugBountyPlatform.dao.IRelatorioDAO;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,102 +26,43 @@ public class BugBountyPlatformApplication {
 	}
 
 	@Bean
-	public CommandLineRunner demo(IEmpresaDAO empresaDAO, IPesquisadorDAO pesquisadorDAO,
-								  IProgramaDAO programaDAO, IRelatorioDAO relatorioDAO) {
-
+	public CommandLineRunner popularBanco(IEmpresaDAO empresaDAO, IPesquisadorDAO pesquisadorDAO, IProgramaDAO programaDAO, IRelatorioDAO relatorioDAO) {
 		return (args) -> {
-			System.out.println("\nIniciando testes");
+			Empresa e1 = new Empresa();
+			e1.setEmail("security@techcorp.com");
+			e1.setSenha("123");
+			e1.setRole("ROLE_EMPRESA");
+			e1.setNome("TechCorp S.A.");
+			e1.setCnpj("11.111.111/0001-11");
+			e1.setDescricao("Empresa de Tecnologia e Software");
+			e1.setSetor("Tecnologia");
+			empresaDAO.save(e1);
 
-			Empresa empTech = new Empresa();
-			empTech.setEmail("security@techcorp.com");
-			empTech.setSenha("123");
-			empTech.setRole("ROLE_EMPRESA");
-			empTech.setNome("TechCorp S.A.");
-			empTech.setCnpj("11.111.111/0001-11");
-			empTech.setDescricao("Tecnologia");
-			empTech.setSetor("Tecnologia");
-			empresaDAO.save(empTech);
+			Empresa e2 = new Empresa();
+			e2.setEmail("app@finbank.com");
+			e2.setSenha("123");
+			e2.setRole("ROLE_EMPRESA");
+			e2.setNome("FinBank");
+			e2.setCnpj("22.222.222/0001-22");
+			e2.setDescricao("Banco Digital e FinTech");
+			e2.setSetor("Finanças");
+			empresaDAO.save(e2);
 
-			Empresa empFin = new Empresa();
-			empFin.setEmail("app@finbank.com");
-			empFin.setSenha("123");
-			empFin.setRole("ROLE_EMPRESA");
-			empFin.setNome("FinBank");
-			empFin.setCnpj("22.222.222/0001-22");
-			empFin.setDescricao("Banco Digital");
-			empFin.setSetor("Finanças");
-			empresaDAO.save(empFin);
+			Pesquisador p1 = new Pesquisador("hacker@hunter.com", "123", "ROLE_PESQUISADOR", "João Silva", "111.222.333-44", "11999999999", "M", LocalDate.of(1995, 5, 20));
+			pesquisadorDAO.save(p1);
 
-			Pesquisador hacker = new Pesquisador();
-			hacker.setEmail("hacker@hunter.com");
-			hacker.setSenha("123");
-			hacker.setRole("ROLE_PESQUISADOR");
-			hacker.setNome("João Silva");
-			hacker.setCpf("111.222.333-44");
-			hacker.setSexo("M");
-			hacker.setDataNascimento(LocalDate.of(1995, 5, 20));
-			hacker.setTelefone("11999999999");
-			pesquisadorDAO.save(hacker);
+			Pesquisador p2 = new Pesquisador("alice@sec.com", "123", "ROLE_PESQUISADOR", "Alice Martins", "555.666.777-88", "11888888888", "F", LocalDate.of(1998, 10, 15));
+			pesquisadorDAO.save(p2);
 
-			Programa progTech = new Programa();
-			progTech.setTitulo("Vulnerabilidades Web");
-			progTech.setEscopo("*.techcorp.com");
-			progTech.setRecompensaMaxima(new BigDecimal("5000.00"));
-			progTech.setDataLimite(LocalDate.of(2026, 12, 31));
-			progTech.setEmpresa(empTech);
-			programaDAO.save(progTech);
+			Programa prog1 = new Programa("Vulnerabilidades Web", "*.techcorp.com", new BigDecimal("5000.00"), LocalDate.of(2026, 12, 31), e1);
+			programaDAO.save(prog1);
 
-			Programa progFin = new Programa();
-			progFin.setTitulo("Teste em API PIX");
-			progFin.setEscopo("api.finbank.com");
-			progFin.setRecompensaMaxima(new BigDecimal("15000.00"));
-			progFin.setDataLimite(LocalDate.of(2026, 10, 15));
-			progFin.setEmpresa(empFin);
-			programaDAO.save(progFin);
+			Programa prog2 = new Programa("Teste em API PIX", "api.finbank.com", new BigDecimal("15000.00"), LocalDate.of(2026, 10, 15), e2);
+			programaDAO.save(prog2);
 
-			Relatorio relatorio1 = new Relatorio();
-			relatorio1.setCaminhoArquivoPoc("/uploads/xss.pdf");
-			relatorio1.setStatus(StatusRelatorio.EM_TRIAGEM);
-			relatorio1.setDataSubmissao(LocalDateTime.now());
-			relatorio1.setPesquisador(hacker);
-			relatorio1.setPrograma(progTech);
-			relatorioDAO.save(relatorio1);
-
-			System.out.println("Dados iniciais salvos.");
-
-			System.out.println("\nTestando consultas");
-
-			System.out.println("Setor Finanças:");
-			for (Empresa e : empresaDAO.findBySetor("Finanças")) {
-				System.out.println("- " + e.getNome() + " (ID: " + e.getId() + ")");
-			}
-
-			System.out.println("\nProgramas TechCorp (ID " + empTech.getId() + "):");
-			for (Programa p : programaDAO.findByEmpresa(empTech)) {
-				System.out.println("- " + p.getTitulo() + " (Recompensa: R$" + p.getRecompensaMaxima() + ")");
-			}
-
-			System.out.println("\nRelatório do João Silva na TechCorp:");
-			Relatorio submissao = relatorioDAO.findByPesquisadorAndPrograma(hacker, progTech);
-			if (submissao != null) {
-				System.out.println("- Encontrado: ID " + submissao.getId() + " | Status: " + submissao.getStatus());
-			}
-
-			System.out.println("\nTestando atualização");
-			Programa progParaAtualizar = programaDAO.findById(progTech.getId()).get();
-			progParaAtualizar.setRecompensaMaxima(new BigDecimal("8000.00"));
-			programaDAO.save(progParaAtualizar);
-
-			Programa progAtualizado = programaDAO.findById(progTech.getId()).get();
-			System.out.println("Nova recompensa TechCorp salva: R$" + progAtualizado.getRecompensaMaxima());
-
-			System.out.println("\nTestando exclusão");
-			relatorioDAO.deleteById(relatorio1.getId());
-
-			boolean existe = relatorioDAO.findById(relatorio1.getId()).isPresent();
-			System.out.println("Relatório apagado com sucesso? " + (!existe ? "Sim" : "Não"));
-
-			System.out.println("\nFim do teste de fluxo.");
+			Relatorio r1 = new Relatorio("uploads/joao_poc1.pdf", StatusRelatorio.EM_TRIAGEM, LocalDateTime.now(), p1, prog1);
+			relatorioDAO.save(r1);
 		};
 	}
+
 }

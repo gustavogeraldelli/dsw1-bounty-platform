@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Lista de Relatórios</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Relatórios Submetidos (PoCs)</h2>
+        <a class="btn btn-primary" th:href="@{/relatorios/cadastrar}">Submeter Novo Relatório</a>
+    </div>
+
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Pesquisador</th>
+            <th>Programa Alvo</th>
+            <th>Empresa</th>
+            <th>Data de Submissão</th>
+            <th>Status</th>
+            <th>Arquivo PoC</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="relatorio : ${relatorios}">
+            <td th:text="${relatorio.id}"></td>
+            <td th:text="${relatorio.pesquisador.nome}"></td>
+            <td th:text="${relatorio.programa.titulo}"></td>
+            <td th:text="${relatorio.programa.empresa.nome}"></td>
+
+            <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
+
+            <td>
+                <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">Em Triagem</span>
+                <span class="badge bg-success" th:if="${relatorio.status.name() == 'ACEITO'}">Aceito</span>
+                <span class="badge bg-danger" th:if="${relatorio.status.name() == 'REJEITADO'}">Rejeitado</span>
+            </td>
+
+            <td>
+                <span th:text="${relatorio.caminhoArquivoPoc}"></span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(relatorios)}">
+            <td colspan="7" class="text-center">Nenhum relatório submetido até o momento.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
