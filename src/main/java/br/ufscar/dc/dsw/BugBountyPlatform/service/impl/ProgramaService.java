@@ -37,4 +37,9 @@ public class ProgramaService implements IProgramaService {
     public void excluir(Long id) {
         programaDAO.deleteById(id);
     }
+
+    @Override
+    public List<Programa> buscarPorSetor(String setor) {
+        return programaDAO.findByEmpresaSetorContainingIgnoreCase(setor);
+    }
 }

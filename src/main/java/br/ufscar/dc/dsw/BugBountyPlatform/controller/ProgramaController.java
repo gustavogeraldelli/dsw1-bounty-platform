@@ -4,9 +4,11 @@ import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IEmpresaService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/programas")
@@ -19,8 +21,12 @@ public class ProgramaController {
     private IEmpresaService empresaService;
 
     @GetMapping("/listar")
-    public String listar(ModelMap model) {
-        model.addAttribute("programas", programaService.buscarTodos());
+    public String listar(@RequestParam(name = "setor", required = false) String setor, ModelMap model) {
+        if (setor != null && !setor.trim().isEmpty())
+            model.addAttribute("programas", programaService.buscarPorSetor(setor));
+        else
+            model.addAttribute("programas", programaService.buscarTodos());
+
         return "programa/lista";
     }
 
