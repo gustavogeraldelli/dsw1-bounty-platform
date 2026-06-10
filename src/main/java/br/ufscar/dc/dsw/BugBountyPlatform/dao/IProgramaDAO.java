@@ -7,10 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface IProgramaDAO extends CrudRepository<Programa, Long> {
-    Programa findById(long id);
     List<Programa> findAll();
-    Programa save(Programa programa);
-    void deleteById(long id);
-    List<Programa> findByEmpresa(Empresa empresa);
-    List<Programa> findByEmpresaSetor(String setor);
+    //List<Programa> findByEmpresa(Empresa empresa);
+    // SELECT p.* FROM programa p JOIN empresa e ON p.empresa_id = e.id WHERE LOWER(e.setor) LIKE LOWER('%texto%');
+    List<Programa> findByEmpresaSetorContainingIgnoreCase(String setor);
 }

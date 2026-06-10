@@ -8,10 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface IRelatorioDAO extends CrudRepository<Relatorio, Long> {
-    Relatorio findById(long id);
     List<Relatorio> findAll();
-    Relatorio save(Relatorio relatorio);
-    void deleteById(long id);
     List<Relatorio> findByPesquisador(Pesquisador pesquisador);
     List<Relatorio> findByPrograma(Programa programa);
     Relatorio findByPesquisadorAndPrograma(Pesquisador pesquisador, Programa programa);

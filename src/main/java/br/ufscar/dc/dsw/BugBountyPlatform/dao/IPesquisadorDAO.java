@@ -6,8 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface IPesquisadorDAO extends CrudRepository<Pesquisador, Long> {
-    Pesquisador findById(long id);
     List<Pesquisador> findAll();
-    Pesquisador save(Pesquisador pesquisador);
-    void deleteById(long id);
 }
