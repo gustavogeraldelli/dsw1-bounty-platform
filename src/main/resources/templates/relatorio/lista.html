@@ -20,11 +20,12 @@
         <tr>
             <th>ID</th>
             <th>Pesquisador</th>
-            <th>Programa Alvo</th>
+            <th>Programa</th>
             <th>Empresa</th>
             <th>Data de Submissão</th>
             <th>Status</th>
-            <th>Arquivo PoC</th>
+            <th>Arquivo</th>
+            <th>Ações</th>
         </tr>
         </thead>
         <tbody>
@@ -44,6 +45,10 @@
 
             <td>
                 <span th:text="${relatorio.caminhoArquivoPoc}"></span>
+            </td>
+
+            <td>
+                <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank">Ver PoC</a>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(relatorios)}">
