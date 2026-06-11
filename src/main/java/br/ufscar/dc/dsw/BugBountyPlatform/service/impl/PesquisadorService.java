@@ -4,6 +4,7 @@ import br.ufscar.dc.dsw.BugBountyPlatform.dao.IPesquisadorDAO;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IPesquisadorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +35,29 @@ public class PesquisadorService implements IPesquisadorService {
     }
 
     @Override
-    public void excluir(Long id) {
-        pesquisadorDAO.deleteById(id);
+    public boolean excluir(Long id) {
+        try {
+            pesquisadorDAO.deleteById(id);
+            return true;
+        }
+        catch (DataIntegrityViolationException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void atualizar(Pesquisador pesquisadorForm) {
+        Pesquisador pesquisadorBanco = this.buscarPorId(pesquisadorForm.getId());
+
+        if (pesquisadorBanco != null) {
+            pesquisadorBanco.setNome(pesquisadorForm.getNome());
+            pesquisadorBanco.setCpf(pesquisadorForm.getCpf());
+            pesquisadorBanco.setEmail(pesquisadorForm.getEmail());
+            pesquisadorBanco.setTelefone(pesquisadorForm.getTelefone());
+            pesquisadorBanco.setSexo(pesquisadorForm.getSexo());
+            pesquisadorBanco.setDataNascimento(pesquisadorForm.getDataNascimento());
+
+            pesquisadorDAO.save(pesquisadorBanco);
+        }
     }
 }

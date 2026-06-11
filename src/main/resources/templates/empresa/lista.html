@@ -10,6 +10,15 @@
         <a class="btn btn-primary" th:href="@{/empresas/cadastrar}">Nova Empresa</a>
     </div>
 
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <table class="table table-striped table-hover">
         <thead class="table-dark">
         <tr>
@@ -23,16 +32,23 @@
         <tbody>
         <tr th:each="empresa : ${empresas}">
             <td th:text="${empresa.id}"></td>
-            <td th:text="${empresa.cnpj}" class="cnpj"></td>
+            <td th:text="${empresa.cnpj}"></td>
             <td th:text="${empresa.nome}"></td>
             <td th:text="${empresa.setor}"></td>
             <td>
                 <a class="btn btn-sm btn-warning" th:href="@{/empresas/editar/{id}(id=${empresa.id})}">Editar</a>
-                <a class="btn btn-sm btn-danger" th:href="@{/empresas/excluir/{id}(id=${empresa.id})}"
-                   onclick="return confirm('Tem certeza que deseja excluir?');">Excluir</a>
+
+                <a th:if="${#lists.isEmpty(empresa.programas)}"
+                   class="btn btn-sm btn-danger"
+                   th:href="@{/empresas/excluir/{id}(id=${empresa.id})}"
+                   onclick="return confirm('Tem certeza que deseja excluir esta empresa?');">Excluir</a>
+
+                <button th:unless="${#lists.isEmpty(empresa.programas)}"
+                        class="btn btn-sm btn-secondary"
+                        disabled
+                        title="Bloqueado: Esta empresa possui programas ativos.">Excluir</button>
             </td>
         </tr>
-
         <tr th:if="${#lists.isEmpty(empresas)}">
             <td colspan="5" class="text-center">Nenhuma empresa cadastrada.</td>
         </tr>

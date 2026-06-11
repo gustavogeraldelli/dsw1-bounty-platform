@@ -1,7 +1,5 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.controller;
 
-import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
-import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IPesquisadorService;
@@ -13,13 +11,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/relatorios")
@@ -47,44 +38,53 @@ public class RelatorioController {
         return "relatorio/cadastro";
     }
 
-    @PostMapping("/salvar")
-    public String salvar(
+    @PostMapping("/submeter")
+    public String submeter(
             @RequestParam("file") MultipartFile file,
             @RequestParam("pesquisadorId") Long pesquisadorId,
             @RequestParam("programaId") Long programaId,
             RedirectAttributes attr) {
 
-        Pesquisador pesquisador = pesquisadorService.buscarPorId(pesquisadorId);
-        Programa programa = programaService.buscarPorId(programaId);
-
-        Relatorio existente = relatorioService.buscarPorPesquisadorEPrograma(pesquisador, programa);
-        if (existente != null && existente.getStatus() == StatusRelatorio.EM_TRIAGEM) {
-            attr.addFlashAttribute("erro", "Relatório em triagem já existente para este programa.");
+        if (file.isEmpty()) {
+            attr.addFlashAttribute("erro", "Por favor, anexe o arquivo PDF contendo a Prova de Conceito.");
             return "redirect:/relatorios/cadastrar";
         }
 
         try {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+            relatorioService.submeter(pesquisadorId, programaId,
+                    file.getOriginalFilename(), file.getInputStream());
 
-            String nomeArquivo = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path caminhoCompleto = uploadPath.resolve(nomeArquivo);
-            Files.copy(file.getInputStream(), caminhoCompleto, StandardCopyOption.REPLACE_EXISTING);
+            attr.addFlashAttribute("sucesso", "Prova de Conceito anexada e enviada para triagem.");
+            return "redirect:/relatorios/listar";
 
-            Relatorio relatorio = new Relatorio();
-            relatorio.setCaminhoArquivoPoc(caminhoCompleto.toString());
-            relatorio.setStatus(StatusRelatorio.EM_TRIAGEM);
-            relatorio.setDataSubmissao(LocalDateTime.now());
-            relatorio.setPesquisador(pesquisador);
-            relatorio.setPrograma(programa);
-
-            relatorioService.salvar(relatorio);
-            attr.addFlashAttribute("sucesso", "Prova de Conceito anexada.");
-
-        } catch (IOException e) {
-            attr.addFlashAttribute("erro", "Falha de IO no servidor ao processar o arquivo.");
+        }
+        catch (IllegalStateException | IllegalArgumentException e) {
+            attr.addFlashAttribute("erro", e.getMessage());
             return "redirect:/relatorios/cadastrar";
         }
+        catch (Exception e) {
+            attr.addFlashAttribute("erro", "Ocorreu um erro interno no servidor ao tentar processar o upload.");
+            return "redirect:/relatorios/cadastrar";
+        }
+    }
+
+    @PostMapping("/avaliar")
+    public String avaliar(@RequestParam("id") Long id, @RequestParam("status") StatusRelatorio status, RedirectAttributes attr) {
+        Relatorio relatorio = relatorioService.buscarPorId(id);
+        if (relatorio != null) {
+            relatorio.setStatus(status);
+            relatorioService.salvar(relatorio);
+            attr.addFlashAttribute("sucesso", "Status do relatório atualizado com sucesso.");
+        }
+        return "redirect:/relatorios/listar";
+    }
+
+    @GetMapping("/excluir/{id}")
+    public String excluir(@PathVariable Long id, RedirectAttributes attr) {
+        if (relatorioService.excluir(id))
+            attr.addFlashAttribute("sucesso", "Relatório excluído com sucesso.");
+        else
+            attr.addFlashAttribute("erro", "Não foi possível excluir o relatório devido a restrições de integridade.");
 
         return "redirect:/relatorios/listar";
     }

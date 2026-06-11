@@ -10,6 +10,15 @@
         <a class="btn btn-primary" th:href="@{/programas/cadastrar}">Novo Programa</a>
     </div>
 
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <form th:action="@{/programas/listar}" method="GET" class="mb-4 d-flex gap-2 w-50">
         <input type="text" name="setor" class="form-control" placeholder="Filtrar por setor da empresa..." th:value="${param.setor}" />
         <button type="submit" class="btn btn-secondary">Filtrar</button>
@@ -32,19 +41,22 @@
         <tr th:each="programa : ${programas}">
             <td th:text="${programa.id}"></td>
             <td th:text="${programa.titulo}"></td>
-
             <td th:text="${programa.empresa.nome}"></td>
-
             <td th:text="${programa.escopo}"></td>
-
             <td th:text="|R$ ${#numbers.formatDecimal(programa.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"></td>
-
             <td th:text="${#temporals.format(programa.dataLimite, 'dd/MM/yyyy')}"></td>
-
             <td>
                 <a class="btn btn-sm btn-warning" th:href="@{/programas/editar/{id}(id=${programa.id})}">Editar</a>
-                <a class="btn btn-sm btn-danger" th:href="@{/programas/excluir/{id}(id=${programa.id})}"
+
+                <a th:if="${#lists.isEmpty(programa.relatorios)}"
+                   class="btn btn-sm btn-danger"
+                   th:href="@{/programas/excluir/{id}(id=${programa.id})}"
                    onclick="return confirm('Tem certeza que deseja excluir este programa?');">Excluir</a>
+
+                <button th:unless="${#lists.isEmpty(programa.relatorios)}"
+                        class="btn btn-sm btn-secondary"
+                        disabled
+                        title="Bloqueado: Existem relatórios submetidos para este programa.">Excluir</button>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(programas)}">

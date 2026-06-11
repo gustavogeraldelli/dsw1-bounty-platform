@@ -7,5 +7,6 @@ public interface IEmpresaService {
     Empresa buscarPorId(Long id);
     List<Empresa> buscarTodos();
     void salvar(Empresa empresa);
-    void excluir(Long id);
+    boolean excluir(Long id);
+    void atualizar(Empresa empresa);
 }

@@ -4,7 +4,6 @@ import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IEmpresaService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -50,14 +49,19 @@ public class ProgramaController {
     }
 
     @PostMapping("/editar")
-    public String editar(Programa programa) {
-        programaService.salvar(programa);
+    public String editar(Programa programa, RedirectAttributes attr) {
+        programaService.atualizar(programa);
+        attr.addFlashAttribute("sucesso", "Programa atualizado com sucesso.");
         return "redirect:/programas/listar";
     }
 
     @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id) {
-        programaService.excluir(id);
+    public String excluir(@PathVariable Long id, RedirectAttributes attr) {
+        if (programaService.excluir(id))
+            attr.addFlashAttribute("sucesso", "Programa excluído com sucesso.");
+        else
+            attr.addFlashAttribute("erro", "Não é possível excluir este programa, pois existem relatórios vinculados a ele.");
+
         return "redirect:/programas/listar";
     }
 }

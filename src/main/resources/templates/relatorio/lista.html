@@ -39,8 +39,27 @@
 
             <td>
                 <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">Em Triagem</span>
-                <span class="badge bg-success" th:if="${relatorio.status.name() == 'ACEITO'}">Aceito</span>
-                <span class="badge bg-danger" th:if="${relatorio.status.name() == 'REJEITADO'}">Rejeitado</span>
+                <span class="badge bg-danger" th:if="${relatorio.status.name() == 'VULNERAVEL'}">Vulnerável</span>
+                <span class="badge bg-secondary" th:if="${relatorio.status.name() == 'REJEITADO'}">Rejeitado</span>
+                <span class="badge bg-info" th:if="${relatorio.status.name() == 'DUPLICADO'}">Duplicado</span>
+                <!-- escolher status -->
+                <div class="mt-2" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">
+                    <form th:action="@{/relatorios/avaliar}" method="POST" class="d-inline">
+                        <input type="hidden" name="id" th:value="${relatorio.id}" />
+                        <input type="hidden" name="status" value="VULNERAVEL" />
+                        <button type="submit" class="btn btn-sm btn-success mb-1">Aceitar</button>
+                    </form>
+                    <form th:action="@{/relatorios/avaliar}" method="POST" class="d-inline">
+                        <input type="hidden" name="id" th:value="${relatorio.id}" />
+                        <input type="hidden" name="status" value="REJEITADO" />
+                        <button type="submit" class="btn btn-sm btn-danger mb-1">Rejeitar</button>
+                    </form>
+                    <form th:action="@{/relatorios/avaliar}" method="POST" class="d-inline">
+                        <input type="hidden" name="id" th:value="${relatorio.id}" />
+                        <input type="hidden" name="status" value="DUPLICADO" />
+                        <button type="submit" class="btn btn-sm btn-secondary mb-1">Duplicado</button>
+                    </form>
+                </div>
             </td>
 
             <td>
@@ -49,6 +68,12 @@
 
             <td>
                 <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank">Ver PoC</a>
+                <hr class="my-2 border-secondary">
+                <a class="btn btn-sm btn-outline-danger"
+                   th:href="@{/relatorios/excluir/{id}(id=${relatorio.id})}"
+                   onclick="return confirm('ATENÇÃO: Tem certeza que deseja excluir este relatório permanentemente do sistema? Esta é uma ação administrativa.');">
+                    Excluir
+                </a>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(relatorios)}">

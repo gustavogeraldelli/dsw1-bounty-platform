@@ -8,6 +8,7 @@ public interface IProgramaService {
     Programa buscarPorId(Long id);
     List<Programa> buscarTodos();
     void salvar(Programa programa);
-    void excluir(Long id);
+    boolean excluir(Long id);
     List<Programa> buscarPorSetor(String setor);
+    void atualizar(Programa programa);
 }

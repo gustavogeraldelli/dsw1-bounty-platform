@@ -7,5 +7,6 @@ public interface IPesquisadorService {
     Pesquisador buscarPorId(Long id);
     List<Pesquisador> buscarTodos();
     void salvar(Pesquisador pesquisador);
-    void excluir(Long id);
+    boolean excluir(Long id);
+    void atualizar(Pesquisador pesquisador);
 }
