@@ -1,8 +1,10 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.Severidade;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +33,13 @@ public class Relatorio {
     @JoinColumn(name = "programa_id", nullable = false)
     private Programa programa;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private Severidade severidade;
+
+    @Column(nullable = true)
+    private BigDecimal recompensa;
+
     public Relatorio() {
     }
 
@@ -41,6 +50,8 @@ public class Relatorio {
         this.pesquisador = pesquisador;
         this.programa = programa;
     }
+
+    
 
     public Long getId() {
         return id;
@@ -90,4 +101,19 @@ public class Relatorio {
         this.programa = programa;
     }
 
+    public BigDecimal getRecompensa() {
+        return recompensa;
+    }
+
+    public void setRecompensa(BigDecimal recompensa) {
+        this.recompensa = recompensa;
+    }
+
+    public Severidade getSeveridade() {
+        return severidade;
+    }
+
+    public void setSeveridade(Severidade severidade) {
+        this.severidade = severidade;
+    }
 }

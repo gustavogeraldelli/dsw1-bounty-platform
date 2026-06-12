@@ -14,73 +14,110 @@
         <span th:text="${sucesso}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Pesquisador</th>
-            <th>Programa</th>
-            <th>Empresa</th>
-            <th>Data de Submissão</th>
-            <th>Status</th>
-            <th>Arquivo</th>
-            <th>Ações</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="relatorio : ${relatorios}">
-            <td th:text="${relatorio.id}"></td>
-            <td th:text="${relatorio.pesquisador.nome}"></td>
-            <td th:text="${relatorio.programa.titulo}"></td>
-            <td th:text="${relatorio.programa.empresa.nome}"></td>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Pesquisador</th>
+                <th>Programa</th>
+                <th>Empresa</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Severidade</th>
+                <th>Recompensa</th>
+                <th style="min-width: 250px;">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="relatorio : ${relatorios}">
+                <td th:text="${relatorio.id}"></td>
+                <td th:text="${relatorio.pesquisador.nome}"></td>
+                <td th:text="${relatorio.programa.titulo}"></td>
+                <td th:text="${relatorio.programa.empresa.nome}"></td>
+                <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
 
-            <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">Em Triagem</span>
+                    <span class="badge bg-success" th:if="${relatorio.status.name() == 'VULNERAVEL'}">Vulnerável</span>
+                    <span class="badge bg-danger" th:if="${relatorio.status.name() == 'REJEITADO'}">Rejeitado</span>
+                    <span class="badge bg-secondary" th:if="${relatorio.status.name() == 'DUPLICADO'}">Duplicado</span>
+                </td>
 
-            <td>
-                <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">Em Triagem</span>
-                <span class="badge bg-danger" th:if="${relatorio.status.name() == 'VULNERAVEL'}">Vulnerável</span>
-                <span class="badge bg-secondary" th:if="${relatorio.status.name() == 'REJEITADO'}">Rejeitado</span>
-                <span class="badge bg-info" th:if="${relatorio.status.name() == 'DUPLICADO'}">Duplicado</span>
-                <!-- escolher status -->
-                <div class="mt-2" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">
-                    <form th:action="@{/relatorios/avaliar}" method="POST" class="d-inline">
-                        <input type="hidden" name="id" th:value="${relatorio.id}" />
-                        <input type="hidden" name="status" value="VULNERAVEL" />
-                        <button type="submit" class="btn btn-sm btn-success mb-1">Aceitar</button>
-                    </form>
-                    <form th:action="@{/relatorios/avaliar}" method="POST" class="d-inline">
-                        <input type="hidden" name="id" th:value="${relatorio.id}" />
-                        <input type="hidden" name="status" value="REJEITADO" />
-                        <button type="submit" class="btn btn-sm btn-danger mb-1">Rejeitar</button>
-                    </form>
-                    <form th:action="@{/relatorios/avaliar}" method="POST" class="d-inline">
-                        <input type="hidden" name="id" th:value="${relatorio.id}" />
-                        <input type="hidden" name="status" value="DUPLICADO" />
-                        <button type="submit" class="btn btn-sm btn-secondary mb-1">Duplicado</button>
-                    </form>
-                </div>
-            </td>
+                <td>
+                    <span th:if="${relatorio.severidade != null}"
+                          th:class="${'badge ' + (relatorio.severidade.name() == 'CRITICA' ? 'bg-danger'
+                          : (relatorio.severidade.name() == 'ALTA' ? 'bg-warning text-dark'
+                          : (relatorio.severidade.name() == 'MEDIA' ? 'bg-primary'
+                          : 'bg-info text-dark')))}"
+                          th:text="${relatorio.severidade.descricao}"></span>
+                    <span th:if="${relatorio.severidade == null}" class="text-muted">-</span>
+                </td>
 
-            <td>
-                <span th:text="${relatorio.caminhoArquivoPoc}"></span>
-            </td>
+                <td>
+                    <span th:if="${relatorio.recompensa != null}" th:text="|R$ ${#numbers.formatDecimal(relatorio.recompensa, 1, 'POINT', 2, 'COMMA')}|" class="text-success fw-bold"></span>
+                    <span th:if="${relatorio.recompensa == null}" class="text-muted">-</span>
+                </td>
 
-            <td>
-                <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank">Ver PoC</a>
-                <hr class="my-2 border-secondary">
-                <a class="btn btn-sm btn-outline-danger"
-                   th:href="@{/relatorios/excluir/{id}(id=${relatorio.id})}"
-                   onclick="return confirm('ATENÇÃO: Tem certeza que deseja excluir este relatório permanentemente do sistema? Esta é uma ação administrativa.');">
-                    Excluir
-                </a>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(relatorios)}">
-            <td colspan="7" class="text-center">Nenhum relatório submetido até o momento.</td>
-        </tr>
-        </tbody>
-    </table>
+                <td>
+                    <div class="d-flex flex-column gap-2">
+                        <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            Ver Arquivo
+                        </a>
+
+                        <div th:if="${relatorio.status.name() == 'EM_TRIAGEM'}" class="card p-2 border-secondary bg-light shadow-sm">
+                            <span class="small fw-bold mb-2 text-center text-muted">Avaliação</span>
+
+                            <form th:action="@{/relatorios/avaliar}" method="POST" class="mb-2">
+                                <input type="hidden" name="id" th:value="${relatorio.id}" />
+                                <input type="hidden" name="status" value="VULNERAVEL" />
+
+                                <div class="input-group input-group-sm mb-2">
+                                    <select name="severidade" class="form-select" required>
+                                        <option value="" disabled selected>Risco...</option>
+                                        <option value="BAIXA">Baixa</option>
+                                        <option value="MEDIA">Média</option>
+                                        <option value="ALTA">Alta</option>
+                                        <option value="CRITICA">Crítica</option>
+                                    </select>
+                                    <input type="number" name="recompensa" class="form-control" placeholder="R$" step="0.01" required>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-success w-100">✔ Aceitar Vulnerabilidade</button>
+                            </form>
+
+                            <div class="d-flex gap-1">
+                                <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
+                                    <input type="hidden" name="id" th:value="${relatorio.id}" />
+                                    <input type="hidden" name="status" value="REJEITADO" />
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">✖ Rejeitar</button>
+                                </form>
+                                <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
+                                    <input type="hidden" name="id" th:value="${relatorio.id}" />
+                                    <input type="hidden" name="status" value="DUPLICADO" />
+                                    <button type="submit" class="btn btn-sm btn-secondary w-100">Duplicado</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <a class="btn btn-sm btn-outline-danger"
+                           th:href="@{/relatorios/excluir/{id}(id=${relatorio.id})}"
+                           onclick="return confirm('ATENÇÃO: Tem certeza que deseja excluir este relatório permanentemente do sistema? Esta é uma ação administrativa.');">
+                            Excluir Registro
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(relatorios)}">
+                <td colspan="9" class="text-center">Nenhum relatório submetido até o momento.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </section>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.controller;
 
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.Severidade;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IPesquisadorService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
@@ -11,6 +12,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/relatorios")
@@ -69,13 +72,14 @@ public class RelatorioController {
     }
 
     @PostMapping("/avaliar")
-    public String avaliar(@RequestParam("id") Long id, @RequestParam("status") StatusRelatorio status, RedirectAttributes attr) {
-        Relatorio relatorio = relatorioService.buscarPorId(id);
-        if (relatorio != null) {
-            relatorio.setStatus(status);
-            relatorioService.salvar(relatorio);
-            attr.addFlashAttribute("sucesso", "Status do relatório atualizado com sucesso.");
-        }
+    public String avaliar(@RequestParam("id") Long id, @RequestParam("status") StatusRelatorio status,
+            @RequestParam(value = "severidade", required = false) Severidade severidade,
+            @RequestParam(value = "recompensa", required = false) BigDecimal recompensa,
+            RedirectAttributes attr) {
+
+        relatorioService.avaliar(id, status, severidade, recompensa);
+        attr.addFlashAttribute("sucesso", "Avaliação do relatório registrada com sucesso.");
+
         return "redirect:/relatorios/listar";
     }
 

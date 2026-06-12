@@ -4,6 +4,7 @@ import br.ufscar.dc.dsw.BugBountyPlatform.dao.IRelatorioDAO;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.Severidade;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IPesquisadorService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,6 +123,25 @@ public class RelatorioService implements IRelatorioService {
         }
         catch (IOException e) {
             throw new RuntimeException("Falha de IO no servidor ao processar o arquivo", e);
+        }
+    }
+
+    @Override
+    public void avaliar(Long relatorioId, StatusRelatorio status, Severidade severidade, BigDecimal recompensa) {
+        Relatorio relatorio = this.buscarPorId(relatorioId);
+        if (relatorio != null) {
+            relatorio.setStatus(status);
+            // adiciona severidade e pagamento só quando é aceito
+            if (status == StatusRelatorio.VULNERAVEL) {
+                relatorio.setSeveridade(severidade);
+                relatorio.setRecompensa(recompensa);
+            }
+            else {
+                relatorio.setSeveridade(null);
+                relatorio.setRecompensa(null);
+            }
+
+            relatorioDAO.save(relatorio);
         }
     }
 }
