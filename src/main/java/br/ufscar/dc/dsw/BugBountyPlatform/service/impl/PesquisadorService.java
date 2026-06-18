@@ -1,10 +1,11 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.service.impl;
 
 import br.ufscar.dc.dsw.BugBountyPlatform.dao.IPesquisadorDAO;
+import br.ufscar.dc.dsw.BugBountyPlatform.dao.IRelatorioDAO;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IPesquisadorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,12 @@ public class PesquisadorService implements IPesquisadorService {
 
     @Autowired
     private IPesquisadorDAO pesquisadorDAO;
+
+    @Autowired
+    private IRelatorioDAO relatorioDAO;
+
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -31,24 +38,27 @@ public class PesquisadorService implements IPesquisadorService {
 
     @Override
     public void salvar(Pesquisador pesquisador) {
+        pesquisador.setSenha(passwordEncoder.encode(pesquisador.getSenha()));
+        pesquisador.setRole("ROLE_PESQUISADOR");
         pesquisadorDAO.save(pesquisador);
     }
 
     @Override
     public boolean excluir(Long id) {
-        try {
-            pesquisadorDAO.deleteById(id);
-            return true;
-        }
-        catch (DataIntegrityViolationException e) {
+        Pesquisador pesquisador = this.buscarPorId(id);
+        if (pesquisador == null) return false;
+
+        if (!relatorioDAO.findByPesquisador(pesquisador).isEmpty()) {
             return false;
         }
+
+        pesquisadorDAO.deleteById(id);
+        return true;
     }
 
     @Override
     public void atualizar(Pesquisador pesquisadorForm) {
         Pesquisador pesquisadorBanco = this.buscarPorId(pesquisadorForm.getId());
-
         if (pesquisadorBanco != null) {
             pesquisadorBanco.setNome(pesquisadorForm.getNome());
             pesquisadorBanco.setCpf(pesquisadorForm.getCpf());
@@ -56,7 +66,6 @@ public class PesquisadorService implements IPesquisadorService {
             pesquisadorBanco.setTelefone(pesquisadorForm.getTelefone());
             pesquisadorBanco.setSexo(pesquisadorForm.getSexo());
             pesquisadorBanco.setDataNascimento(pesquisadorForm.getDataNascimento());
-
             pesquisadorDAO.save(pesquisadorBanco);
         }
     }

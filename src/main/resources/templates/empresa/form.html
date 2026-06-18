@@ -13,7 +13,7 @@
                 </div>
                 <div class="card-body">
 
-                    <form th:action="${empresa.id == null} ? @{/empresas/salvar} : @{/empresas/editar}"
+                    <form th:action="${empresa.id == null} ? @{/empresas/cadastrar} : @{/empresas/editar}"
                           th:object="${empresa}" method="POST">
 
                         <input type="hidden" th:field="*{id}" />
@@ -53,7 +53,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a th:href="@{/empresas/listar}" class="btn btn-secondary">Cancelar</a>
+                            <a th:href="@{/empresas/listar}" class="btn btn-secondary">Voltar</a>
                             <button type="submit" class="btn btn-success">Salvar</button>
                         </div>
                     </form>

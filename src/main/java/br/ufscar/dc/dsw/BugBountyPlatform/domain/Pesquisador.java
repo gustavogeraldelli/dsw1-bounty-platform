@@ -1,13 +1,13 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "Pesquisador")
-public class Pesquisador extends AbstractUser{
+@PrimaryKeyJoinColumn(name = "id")
+public class Pesquisador extends Usuario {
 
     @Column(nullable = false, unique = true, length = 14)
     private String cpf;
@@ -94,5 +94,4 @@ public class Pesquisador extends AbstractUser{
     public void setRelatorios(List<Relatorio> relatorios) {
         this.relatorios = relatorios;
     }
-
 }

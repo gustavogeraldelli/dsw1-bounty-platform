@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.service;
 
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
@@ -18,4 +19,7 @@ public interface IRelatorioService {
     Relatorio buscarPorPesquisadorEPrograma(Pesquisador pesquisador, Programa programa);
     void submeter(Long pesquisadorId, Long programaId, String nomeArquivo, InputStream arquivoStream);
     void avaliar(Long relatorioId, StatusRelatorio status, Severidade severidade, BigDecimal recompensa);
+    List<Relatorio> buscarPorPesquisador(Pesquisador pesquisador);
+    List<Relatorio> buscarPorEmpresa(Empresa empresa);
+    List<Relatorio> buscarPorPrograma(Programa programa);
 }

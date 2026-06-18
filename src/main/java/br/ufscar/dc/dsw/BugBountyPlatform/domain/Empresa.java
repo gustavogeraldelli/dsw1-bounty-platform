@@ -1,18 +1,18 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
 @Table(name = "Empresa")
-public class Empresa extends AbstractUser {
+@PrimaryKeyJoinColumn(name = "id")
+public class Empresa extends Usuario {
 
     @Column(nullable = false, length = 150)
     private String nome;
 
     @Column(nullable = false, unique = true, length = 18)
-    private String cnpj; // Formatado: XX.XXX.XXX/XXXX-XX
+    private String cnpj;
 
     @Column(length = 500)
     private String descricao;
@@ -33,14 +33,13 @@ public class Empresa extends AbstractUser {
         this.setor = setor;
     }
 
-    public Empresa(String email, String senna, String role, String nome, String cnpj, String descricao, String setor) {
-        super(email, senna, role);
+    public Empresa(String email, String senha, String role, String nome, String cnpj, String descricao, String setor) {
+        super(email, senha, role);
         this.nome = nome;
         this.cnpj = cnpj;
         this.descricao = descricao;
         this.setor = setor;
     }
-
 
     public String getNome() {
         return nome;
@@ -81,5 +80,4 @@ public class Empresa extends AbstractUser {
     public void setProgramas(List<Programa> programas) {
         this.programas = programas;
     }
-
 }

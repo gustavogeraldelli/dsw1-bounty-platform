@@ -1,12 +1,17 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.controller;
 
-import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Usuario;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.Severidade;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.enums.StatusRelatorio;
-import br.ufscar.dc.dsw.BugBountyPlatform.service.IPesquisadorService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IRelatorioService;
+import br.ufscar.dc.dsw.BugBountyPlatform.service.IUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/relatorios")
@@ -21,65 +27,96 @@ public class RelatorioController {
 
     @Autowired
     private IRelatorioService relatorioService;
-    @Autowired
-    private IPesquisadorService pesquisadorService;
+
     @Autowired
     private IProgramaService programaService;
 
-    private final String UPLOAD_DIR = "uploads/";
+    @Autowired
+    private IUsuarioService usuarioService;
+
+    private Usuario getUsuarioLogado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser"))
+            return usuarioService.buscarPorEmail(auth.getName());
+        return null;
+    }
 
     @GetMapping("/listar")
     public String listar(ModelMap model) {
-        model.addAttribute("relatorios", relatorioService.buscarTodos());
+        Usuario usuarioLogado = getUsuarioLogado();
+
+        if (usuarioLogado != null) {
+            if (usuarioLogado.getRole().equals("ROLE_PESQUISADOR"))
+                model.addAttribute("relatorios", relatorioService.buscarPorPesquisador((Pesquisador) usuarioLogado));
+            else if (usuarioLogado.getRole().equals("ROLE_EMPRESA"))
+                model.addAttribute("relatorios", relatorioService.buscarPorEmpresa((Empresa) usuarioLogado));
+            else
+                model.addAttribute("relatorios", relatorioService.buscarTodos());
+        }
         return "relatorio/lista";
     }
 
     @GetMapping("/cadastrar")
-    public String cadastrar(ModelMap model) {
-        model.addAttribute("pesquisadores", pesquisadorService.buscarTodos());
-        model.addAttribute("programas", programaService.buscarTodos());
-        return "relatorio/cadastro";
+    public String exibirFormCadastro(@RequestParam(name = "programaId", required = false) Long programaId, ModelMap model, RedirectAttributes attr) {
+        if (programaId == null) {
+            attr.addFlashAttribute("erro", "Por favor, acesse os detalhes de um programa para submeter um relatório.");
+            return "redirect:/programas/listar";
+        }
+
+        Programa programa = programaService.buscarPorId(programaId);
+        if (programa == null) {
+            attr.addFlashAttribute("erro", "Programa alvo não encontrado.");
+            return "redirect:/programas/listar";
+        }
+
+        if (programa.getDataLimite().isBefore(LocalDate.now())) {
+            attr.addFlashAttribute("erro", "O prazo para submissão de relatórios neste programa já foi encerrado.");
+            return "redirect:/programas/detalhes/" + programa.getId();
+        }
+
+        model.addAttribute("programa", programa);
+        return "relatorio/form";
     }
 
-    @PostMapping("/submeter")
-    public String submeter(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("pesquisadorId") Long pesquisadorId,
-            @RequestParam("programaId") Long programaId,
-            RedirectAttributes attr) {
+    @PostMapping("/cadastrar")
+    public String cadastrar(@RequestParam("file") MultipartFile file,
+                            @RequestParam("programaId") Long programaId, RedirectAttributes attr) {
+
+        Usuario usuarioLogado = getUsuarioLogado();
+        if (usuarioLogado == null || !usuarioLogado.getRole().equals("ROLE_PESQUISADOR")) {
+            attr.addFlashAttribute("erro", "Acesso negado.");
+            return "redirect:/relatorios/listar";
+        }
 
         if (file.isEmpty()) {
             attr.addFlashAttribute("erro", "Por favor, anexe o arquivo PDF contendo a Prova de Conceito.");
-            return "redirect:/relatorios/cadastrar";
+            return "redirect:/relatorios/cadastrar?programaId=" + programaId;
         }
 
         try {
-            relatorioService.submeter(pesquisadorId, programaId,
-                    file.getOriginalFilename(), file.getInputStream());
-
+            relatorioService.submeter(usuarioLogado.getId(), programaId, file.getOriginalFilename(), file.getInputStream());
             attr.addFlashAttribute("sucesso", "Prova de Conceito anexada e enviada para triagem.");
             return "redirect:/relatorios/listar";
 
         }
         catch (IllegalStateException | IllegalArgumentException e) {
             attr.addFlashAttribute("erro", e.getMessage());
-            return "redirect:/relatorios/cadastrar";
+            return "redirect:/relatorios/cadastrar?programaId=" + programaId;
         }
         catch (Exception e) {
             attr.addFlashAttribute("erro", "Ocorreu um erro interno no servidor ao tentar processar o upload.");
-            return "redirect:/relatorios/cadastrar";
+            return "redirect:/relatorios/cadastrar?programaId=" + programaId;
         }
     }
 
     @PostMapping("/avaliar")
     public String avaliar(@RequestParam("id") Long id, @RequestParam("status") StatusRelatorio status,
-            @RequestParam(value = "severidade", required = false) Severidade severidade,
-            @RequestParam(value = "recompensa", required = false) BigDecimal recompensa,
-            RedirectAttributes attr) {
+                          @RequestParam(value = "severidade", required = false) Severidade severidade,
+                          @RequestParam(value = "recompensa", required = false) BigDecimal recompensa,
+                          RedirectAttributes attr) {
 
         relatorioService.avaliar(id, status, severidade, recompensa);
         attr.addFlashAttribute("sucesso", "Avaliação do relatório registrada com sucesso.");
-
         return "redirect:/relatorios/listar";
     }
 

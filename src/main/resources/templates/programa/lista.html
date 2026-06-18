@@ -1,13 +1,30 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title>Lista de Programas</title>
+    <title>Programas</title>
 </head>
 <body>
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Programas de Bug Bounty</h2>
-        <a class="btn btn-primary" th:href="@{/programas/cadastrar}">Novo Programa</a>
+        <a class="btn btn-primary" sec:authorize="hasRole('EMPRESA')" th:href="@{/programas/cadastrar}">Cadastrar Novo Programa</a>
+    </div>
+
+    <div class="card bg-light mb-4 border-0 shadow-sm" sec:authorize="!hasRole('EMPRESA')">
+        <div class="card-body py-3">
+            <form th:action="@{/programas/listar}" method="GET" class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <label for="busca" class="col-form-label fw-bold">Pesquisar:</label>
+                </div>
+                <div class="col-auto flex-grow-1">
+                    <input type="text" name="busca" id="busca" class="form-control" placeholder="Buscar por Empresa ou Setor..." th:value="${param.busca}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-secondary">Filtrar</button>
+                    <a th:href="@{/programas/listar}" class="btn btn-outline-secondary" th:if="${param.busca != null}">Limpar</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -19,48 +36,59 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <form th:action="@{/programas/listar}" method="GET" class="mb-4 d-flex gap-2 w-50">
-        <input type="text" name="setor" class="form-control" placeholder="Filtrar por setor da empresa..." th:value="${param.setor}" />
-        <button type="submit" class="btn btn-secondary">Filtrar</button>
-        <a th:href="@{/programas/listar}" class="btn btn-outline-secondary">Limpar</a>
-    </form>
-
-    <table class="table table-striped table-hover">
+    <table class="table table-hover align-middle">
         <thead class="table-dark">
         <tr>
-            <th>ID</th>
+            <th sec:authorize="hasRole('ADMIN')">ID</th>
             <th>Título</th>
             <th>Empresa</th>
-            <th>Escopo</th>
-            <th>Recompensa (Máx)</th>
+            <th sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')">Escopo</th>
+            <th>Recompensa Máx.</th>
             <th>Data Limite</th>
-            <th>Ações</th>
+            <th sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')">Ações</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="programa : ${programas}">
-            <td th:text="${programa.id}"></td>
-            <td th:text="${programa.titulo}"></td>
-            <td th:text="${programa.empresa.nome}"></td>
-            <td th:text="${programa.escopo}"></td>
-            <td th:text="|R$ ${#numbers.formatDecimal(programa.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"></td>
-            <td th:text="${#temporals.format(programa.dataLimite, 'dd/MM/yyyy')}"></td>
+        <tr th:each="programa : ${programas}"
+            th:classappend="${programa.dataLimite.isBefore(#temporals.createToday())} ? 'table-secondary text-muted' : ''">
+
+            <td sec:authorize="hasRole('ADMIN')" th:text="${programa.id}"></td>
+
             <td>
-                <a class="btn btn-sm btn-warning" th:href="@{/programas/editar/{id}(id=${programa.id})}">Editar</a>
+                <a th:href="@{/programas/detalhes/{id}(id=${programa.id})}"
+                   th:text="${programa.titulo}"
+                   th:classappend="${programa.dataLimite.isBefore(#temporals.createToday())} ? 'text-secondary text-decoration-none' : 'text-decoration-none fw-bold'"></a>
+            </td>
 
-                <a th:if="${#lists.isEmpty(programa.relatorios)}"
-                   class="btn btn-sm btn-danger"
-                   th:href="@{/programas/excluir/{id}(id=${programa.id})}"
-                   onclick="return confirm('Tem certeza que deseja excluir este programa?');">Excluir</a>
+            <td th:text="${programa.empresa.nome}"></td>
+            <td sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')" th:text="${programa.escopo}"></td>
 
-                <button th:unless="${#lists.isEmpty(programa.relatorios)}"
-                        class="btn btn-sm btn-secondary"
-                        disabled
-                        title="Bloqueado: Existem relatórios submetidos para este programa.">Excluir</button>
+            <td th:text="|R$ ${#numbers.formatDecimal(programa.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"
+                th:classappend="${programa.dataLimite.isBefore(#temporals.createToday())} ? '' : 'text-success fw-bold'"></td>
+
+            <td>
+                <span th:text="${#temporals.format(programa.dataLimite, 'dd/MM/yyyy')}"></span>
+                <span th:if="${programa.dataLimite.isBefore(#temporals.createToday())}" class="badge bg-danger ms-1 opacity-75">Encerrado</span>
+            </td>
+
+            <td sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')">
+                <div class="d-flex gap-2">
+                    <a th:href="@{/programas/editar/{id}(id=${programa.id})}" class="btn btn-sm btn-primary">Editar</a>
+
+                    <a th:if="${#lists.isEmpty(programa.relatorios)}"
+                       th:href="@{/programas/excluir/{id}(id=${programa.id})}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Tem certeza que deseja excluir?');">Excluir</a>
+
+                    <button th:unless="${#lists.isEmpty(programa.relatorios)}"
+                            class="btn btn-sm btn-secondary"
+                            disabled
+                            title="Bloqueado: Este programa possui relatórios submetidos.">Excluir</button>
+                </div>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(programas)}">
-            <td colspan="7" class="text-center">Nenhum programa cadastrado.</td>
+            <td colspan="7" class="text-center">Nenhum programa encontrado.</td>
         </tr>
         </tbody>
     </table>

@@ -1,6 +1,7 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.service.impl;
 
 import br.ufscar.dc.dsw.BugBountyPlatform.dao.IRelatorioDAO;
+import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Pesquisador;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Relatorio;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -95,6 +97,10 @@ public class RelatorioService implements IRelatorioService {
             throw new IllegalArgumentException("Pesquisador ou Programa não localizado no sistema.");
         }
 
+        if (programa.getDataLimite().isBefore(LocalDate.now())) {
+            throw new IllegalStateException("O prazo para submissão de relatórios neste programa já foi encerrado.");
+        }
+
         Relatorio existente = relatorioDAO.findByPesquisadorAndPrograma(pesquisador, programa);
         if (existente != null && existente.getStatus() == StatusRelatorio.EM_TRIAGEM) {
             throw new IllegalStateException("Relatório em triagem já existente para este programa.");
@@ -131,7 +137,6 @@ public class RelatorioService implements IRelatorioService {
         Relatorio relatorio = this.buscarPorId(relatorioId);
         if (relatorio != null) {
             relatorio.setStatus(status);
-            // adiciona severidade e pagamento só quando é aceito
             if (status == StatusRelatorio.VULNERAVEL) {
                 relatorio.setSeveridade(severidade);
                 relatorio.setRecompensa(recompensa);
@@ -140,8 +145,28 @@ public class RelatorioService implements IRelatorioService {
                 relatorio.setSeveridade(null);
                 relatorio.setRecompensa(null);
             }
-
             relatorioDAO.save(relatorio);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Relatorio> buscarPorPesquisador(Pesquisador pesquisador) {
+        return relatorioDAO.findByPesquisador(pesquisador);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Relatorio> buscarPorEmpresa(Empresa empresa) {
+        List<Programa> programasDaEmpresa = programaService.buscarPorEmpresa(empresa);
+        if (programasDaEmpresa == null || programasDaEmpresa.isEmpty())
+            return List.of();
+        return relatorioDAO.findByProgramaIn(programasDaEmpresa);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Relatorio> buscarPorPrograma(Programa programa) {
+        return relatorioDAO.findByPrograma(programa);
     }
 }

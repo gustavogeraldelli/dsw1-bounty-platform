@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Login</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <h2 class="mb-4 text-center">Entrar na Plataforma</h2>
+
+            <div th:if="${param.error}" class="alert alert-danger text-center">
+                E-mail ou senha inválidos.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success text-center">
+                Sessão encerrada com sucesso.
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form th:action="@{/login}" method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="username" name="username" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Entrar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <p>Não possui conta? <a th:href="@{/cadastrar}">Cadastre-se como Pesquisador</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

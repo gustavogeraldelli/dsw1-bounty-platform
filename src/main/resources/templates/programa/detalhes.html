@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Detalhes do Programa</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a th:href="@{/programas/listar}" class="btn btn-sm btn-outline-secondary">Voltar à Lista</a>
+
+                <div th:if="${encerrado}">
+                    <span class="badge bg-danger fs-6 p-2">Programa Encerrado</span>
+                </div>
+
+                <div th:unless="${encerrado}">
+                    <a sec:authorize="hasRole('PESQUISADOR')"
+                       th:href="@{/relatorios/cadastrar(programaId=${programa.id})}"
+                       class="btn btn-success">
+                        Submeter Relatório
+                    </a>
+                    <a sec:authorize="isAnonymous()"
+                       th:href="@{/login}"
+                       class="btn btn-outline-success">
+                        Faça login para submeter
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${erro}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h3 class="mb-0" th:text="${programa.titulo}"></h3>
+                    <small class="text-info" th:text="'Gerido por: ' + ${programa.empresa.nome}"></small>
+                </div>
+                <div class="card-body p-4">
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 border-end">
+                            <h5 class="text-muted mb-3">Informações Gerais</h5>
+                            <p><strong>Setor da Empresa:</strong> <span th:text="${programa.empresa.setor}"></span></p>
+                            <p>
+                                <strong>Recompensa Máxima:</strong>
+                                <span class="text-success fw-bold fs-5" th:text="|R$ ${#numbers.formatDecimal(programa.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"></span>
+                            </p>
+                            <p>
+                                <strong>Data Limite:</strong>
+                                <span th:text="${#temporals.format(programa.dataLimite, 'dd/MM/yyyy')}"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-6 ps-4">
+                            <h5 class="text-muted mb-3">Sobre a Empresa</h5>
+                            <p th:text="${programa.empresa.descricao} ?: 'Nenhuma descrição fornecida pela empresa.'"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded border border-warning border-start-0 border-end-0 border-bottom-0 border-3">
+                        <h5 class="text-dark mb-2">Escopo Autorizado (Alvos)</h5>
+                        <p class="mb-0 text-monospace bg-white p-2 border rounded font-monospace" th:text="${programa.escopo}"></p>
+                        <small class="text-muted mt-2 d-block">
+                            * Qualquer teste realizado fora do escopo listado acima é estritamente proibido e não será elegível para recompensa.
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

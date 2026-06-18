@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IProgramaDAO extends CrudRepository<Programa, Long> {
     List<Programa> findAll();
-    //List<Programa> findByEmpresa(Empresa empresa);
+    List<Programa> findByEmpresa(Empresa empresa);
     // SELECT p.* FROM programa p JOIN empresa e ON p.empresa_id = e.id WHERE LOWER(e.setor) LIKE LOWER('%texto%');
-    List<Programa> findByEmpresaSetorContainingIgnoreCase(String setor);
+    List<Programa> findByEmpresaNomeContainingIgnoreCaseOrEmpresaSetorContainingIgnoreCase(String nome, String setor);
 }

@@ -7,7 +7,6 @@
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Pesquisadores</h2>
-        <a class="btn btn-primary" th:href="@{/pesquisadores/cadastrar}">Novo Pesquisador</a>
     </div>
 
     <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -38,7 +37,7 @@
             <td th:text="${pesquisador.email}"></td>
             <td th:text="${pesquisador.telefone}"></td>
             <td>
-                <a class="btn btn-sm btn-warning" th:href="@{/pesquisadores/editar/{id}(id=${pesquisador.id})}">Editar</a>
+                <a class="btn btn-sm btn-primary" th:href="@{/pesquisadores/editar/{id}(id=${pesquisador.id})}">Editar</a>
 
                 <a th:if="${#lists.isEmpty(pesquisador.relatorios)}"
                    class="btn btn-sm btn-danger"

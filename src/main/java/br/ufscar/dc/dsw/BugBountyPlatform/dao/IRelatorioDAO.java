@@ -12,4 +12,5 @@ public interface IRelatorioDAO extends CrudRepository<Relatorio, Long> {
     List<Relatorio> findByPesquisador(Pesquisador pesquisador);
     List<Relatorio> findByPrograma(Programa programa);
     Relatorio findByPesquisadorAndPrograma(Pesquisador pesquisador, Programa programa);
+    List<Relatorio> findByProgramaIn(List<Programa> programas);
 }

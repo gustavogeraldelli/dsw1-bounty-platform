@@ -6,8 +6,7 @@
 <body>
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Relatórios Submetidos (PoCs)</h2>
-        <a class="btn btn-primary" th:href="@{/relatorios/cadastrar}">Submeter Novo Relatório</a>
+        <h2 th:text="${#authorization.expression('hasRole(''PESQUISADOR'')')} ? 'Meus Relatórios' : 'Relatórios Submetidos'"></h2>
     </div>
 
     <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -23,23 +22,28 @@
         <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
             <tr>
-                <th>ID</th>
-                <th>Pesquisador</th>
+                <th sec:authorize="hasRole('ADMIN')">ID</th>
+                <th sec:authorize="!hasRole('PESQUISADOR')">Pesquisador</th>
                 <th>Programa</th>
-                <th>Empresa</th>
+                <th sec:authorize="!hasRole('EMPRESA')">Empresa</th>
                 <th>Data</th>
                 <th>Status</th>
                 <th>Severidade</th>
-                <th>Recompensa</th>
+                <th>Bounty</th>
                 <th style="min-width: 250px;">Ações</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="relatorio : ${relatorios}">
-                <td th:text="${relatorio.id}"></td>
-                <td th:text="${relatorio.pesquisador.nome}"></td>
+                <td sec:authorize="hasRole('ADMIN')" th:text="${relatorio.id}"></td>
+
+                <td sec:authorize="!hasRole('PESQUISADOR')">
+                    <div th:text="${relatorio.pesquisador.nome}"></div>
+                    <div class="small text-muted" th:text="${relatorio.pesquisador.email}"></div>
+                </td>
+
                 <td th:text="${relatorio.programa.titulo}"></td>
-                <td th:text="${relatorio.programa.empresa.nome}"></td>
+                <td sec:authorize="!hasRole('EMPRESA')" th:text="${relatorio.programa.empresa.nome}"></td>
                 <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
 
                 <td>
@@ -51,10 +55,7 @@
 
                 <td>
                     <span th:if="${relatorio.severidade != null}"
-                          th:class="${'badge ' + (relatorio.severidade.name() == 'CRITICA' ? 'bg-danger'
-                          : (relatorio.severidade.name() == 'ALTA' ? 'bg-warning text-dark'
-                          : (relatorio.severidade.name() == 'MEDIA' ? 'bg-primary'
-                          : 'bg-info text-dark')))}"
+                          th:class="${'badge ' + (relatorio.severidade.name() == 'CRITICA' ? 'bg-danger' : (relatorio.severidade.name() == 'ALTA' ? 'bg-warning text-dark' : (relatorio.severidade.name() == 'MEDIA' ? 'bg-primary' : 'bg-info text-dark')))}"
                           th:text="${relatorio.severidade.descricao}"></span>
                     <span th:if="${relatorio.severidade == null}" class="text-muted">-</span>
                 </td>
@@ -66,12 +67,12 @@
 
                 <td>
                     <div class="d-flex flex-column gap-2">
-                        <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank" class="btn btn-sm btn-primary">
                             Ver Arquivo
                         </a>
 
-                        <div th:if="${relatorio.status.name() == 'EM_TRIAGEM'}" class="card p-2 border-secondary bg-light shadow-sm">
-                            <span class="small fw-bold mb-2 text-center text-muted">Avaliação</span>
+                        <div sec:authorize="hasRole('EMPRESA')" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}" class="card p-2 border-secondary bg-light shadow-sm">
+                            <span class="small fw-bold mb-2 text-center text-muted">Ações de Avaliação</span>
 
                             <form th:action="@{/relatorios/avaliar}" method="POST" class="mb-2">
                                 <input type="hidden" name="id" th:value="${relatorio.id}" />
@@ -87,14 +88,14 @@
                                     </select>
                                     <input type="number" name="recompensa" class="form-control" placeholder="R$" step="0.01" required>
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-success w-100">✔ Aceitar Vulnerabilidade</button>
+                                <button type="submit" class="btn btn-sm btn-success w-100">Aceitar</button>
                             </form>
 
                             <div class="d-flex gap-1">
                                 <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
                                     <input type="hidden" name="id" th:value="${relatorio.id}" />
                                     <input type="hidden" name="status" value="REJEITADO" />
-                                    <button type="submit" class="btn btn-sm btn-danger w-100">✖ Rejeitar</button>
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">Rejeitar</button>
                                 </form>
                                 <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
                                     <input type="hidden" name="id" th:value="${relatorio.id}" />
@@ -104,16 +105,16 @@
                             </div>
                         </div>
 
-                        <a class="btn btn-sm btn-outline-danger"
+                        <a sec:authorize="hasRole('ADMIN')" class="btn btn-sm btn-danger"
                            th:href="@{/relatorios/excluir/{id}(id=${relatorio.id})}"
-                           onclick="return confirm('ATENÇÃO: Tem certeza que deseja excluir este relatório permanentemente do sistema? Esta é uma ação administrativa.');">
+                           onclick="return confirm('ATENÇÃO: Tem certeza que deseja excluir este relatório permanentemente do sistema?');">
                             Excluir Registro
                         </a>
                     </div>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(relatorios)}">
-                <td colspan="9" class="text-center">Nenhum relatório submetido até o momento.</td>
+                <td colspan="9" class="text-center">Nenhum relatório encontrado.</td>
             </tr>
             </tbody>
         </table>
