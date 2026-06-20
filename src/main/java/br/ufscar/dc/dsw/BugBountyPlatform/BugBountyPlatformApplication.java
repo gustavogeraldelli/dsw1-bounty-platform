@@ -29,18 +29,18 @@ public class BugBountyPlatformApplication {
 			Admin admin = new Admin("admin@admin.com", passwordEncoder.encode("admin"), "ROLE_ADMIN", "Administrador Principal");
 			adminDAO.save(admin);
 
-			Empresa e1 = new Empresa("security@techcorp.com", passwordEncoder.encode("123"), "ROLE_EMPRESA", "TechCorp S.A.", "11.111.111/0001-11", "Empresa de Tecnologia e Software", "Tecnologia");
+			Empresa e1 = new Empresa("sec@tech.com", passwordEncoder.encode("123"), "ROLE_EMPRESA", "TechCorp S.A.", "11111111000111", "Empresa de Tecnologia e Software", "Tecnologia");
 			empresaDAO.save(e1);
-			Empresa e2 = new Empresa("app@finbank.com", passwordEncoder.encode("123"), "ROLE_EMPRESA", "FinBank", "22.222.222/0001-22", "Banco Digital e FinTech", "Finanças");
+			Empresa e2 = new Empresa("app@finbank.com", passwordEncoder.encode("123"), "ROLE_EMPRESA", "FinBank", "22222222000122", "Banco Digital e FinTech", "Finanças");
 			empresaDAO.save(e2);
-			Empresa e3 = new Empresa("contato@startupsec.com", passwordEncoder.encode("123"), "ROLE_EMPRESA", "Startup Sec", "33.333.333/0001-33", "Startup emergente de cibersegurança.", "Tecnologia");
+			Empresa e3 = new Empresa("sec@startup.com", passwordEncoder.encode("123"), "ROLE_EMPRESA", "Startup Sec", "33333333000133", "Startup emergente de cibersegurança.", "Tecnologia");
 			empresaDAO.save(e3);
 
-			Pesquisador p1 = new Pesquisador("hack@hack.com", passwordEncoder.encode("123"), "ROLE_PESQUISADOR", "João Silva", "111.222.333-44", "11999999999", "M", LocalDate.of(1995, 5, 20));
+			Pesquisador p1 = new Pesquisador("hack@hack.com", passwordEncoder.encode("123"), "ROLE_PESQUISADOR", "João Silva", "11122233344", "11999999999", "M", LocalDate.of(1995, 5, 20));
 			pesquisadorDAO.save(p1);
-			Pesquisador p2 = new Pesquisador("alice@sec.com", passwordEncoder.encode("123"), "ROLE_PESQUISADOR", "Alice Martins", "555.666.777-88", "11888888888", "F", LocalDate.of(1998, 10, 15));
+			Pesquisador p2 = new Pesquisador("alice@sec.com", passwordEncoder.encode("123"), "ROLE_PESQUISADOR", "Alice Martins", "55566677788", "11888888888", "F", LocalDate.of(1998, 10, 15));
 			pesquisadorDAO.save(p2);
-			Pesquisador p3 = new Pesquisador("carlos@hacker.com", passwordEncoder.encode("123"), "ROLE_PESQUISADOR", "Carlos Souza", "999.888.777-66", "11777777777", "M", LocalDate.of(2000, 1, 1));
+			Pesquisador p3 = new Pesquisador("carlos@hacker.com", passwordEncoder.encode("123"), "ROLE_PESQUISADOR", "Carlos Souza", "99988877766", "11777777777", "M", LocalDate.of(2000, 1, 1));
 			pesquisadorDAO.save(p3);
 
 			Programa prog1 = new Programa("Vulnerabilidades Web", "*.techcorp.com", new BigDecimal("5000.00"), LocalDate.of(2026, 12, 31), e1);

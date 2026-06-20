@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title>Lista de Empresas</title>
+    <title th:text="#{empresa.list.title}"></title>
 </head>
 <body>
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Empresas</h2>
-        <a class="btn btn-primary" th:href="@{/empresas/cadastrar}">Nova Empresa</a>
+        <h2 th:text="#{empresa.list.header}"></h2>
+        <a class="btn btn-primary" th:href="@{/empresas/cadastrar}" th:text="#{empresa.list.btn.new}"></a>
     </div>
 
     <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -22,11 +22,11 @@
     <table class="table table-striped table-hover">
         <thead class="table-dark">
         <tr>
-            <th>ID</th>
-            <th>CNPJ</th>
-            <th>Nome</th>
-            <th>Setor</th>
-            <th>Ações</th>
+            <th th:text="#{empresa.list.table.id}"></th>
+            <th th:text="#{empresa.list.table.cnpj}"></th>
+            <th th:text="#{empresa.list.table.name}"></th>
+            <th th:text="#{empresa.list.table.sector}"></th>
+            <th th:text="#{empresa.list.table.actions}"></th>
         </tr>
         </thead>
         <tbody>
@@ -36,21 +36,24 @@
             <td th:text="${empresa.nome}"></td>
             <td th:text="${empresa.setor}"></td>
             <td>
-                <a class="btn btn-sm btn-primary" th:href="@{/empresas/editar/{id}(id=${empresa.id})}">Editar</a>
+                <a class="btn btn-sm btn-primary" th:href="@{/empresas/editar/{id}(id=${empresa.id})}" th:text="#{empresa.list.btn.edit}"></a>
 
                 <a th:if="${#lists.isEmpty(empresa.programas)}"
                    class="btn btn-sm btn-danger"
                    th:href="@{/empresas/excluir/{id}(id=${empresa.id})}"
-                   onclick="return confirm('Tem certeza que deseja excluir esta empresa?');">Excluir</a>
+                   th:data-confirm="#{empresa.list.confirm.delete}"
+                   onclick="return confirm(this.getAttribute('data-confirm'));"
+                   th:text="#{empresa.list.btn.delete}"></a>
 
                 <button th:unless="${#lists.isEmpty(empresa.programas)}"
                         class="btn btn-sm btn-secondary"
                         disabled
-                        title="Bloqueado: Esta empresa possui programas ativos.">Excluir</button>
+                        th:title="#{empresa.list.blocked}"
+                        th:text="#{empresa.list.btn.delete}"></button>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(empresas)}">
-            <td colspan="5" class="text-center">Nenhuma empresa cadastrada.</td>
+            <td colspan="5" class="text-center" th:text="#{empresa.list.table.empty}"></td>
         </tr>
         </tbody>
     </table>

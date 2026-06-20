@@ -4,9 +4,13 @@ import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Usuario;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IEmpresaService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IUsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -20,6 +24,13 @@ public class EmpresaController {
     @Autowired
     private IUsuarioService usuarioService;
 
+    @Autowired
+    private MessageSource messageSource;
+
+    private String getMessage(String key) {
+        return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
+    }
+
     @GetMapping("/listar")
     public String listar(ModelMap model) {
         model.addAttribute("empresas", empresaService.buscarTodos());
@@ -28,58 +39,64 @@ public class EmpresaController {
 
     @GetMapping("/cadastrar")
     public String formCadastro(Empresa empresa) {
-        return "form";
+        return "empresa/form";
     }
 
     @PostMapping("/cadastrar")
-    public String cadastrar(Empresa empresa, ModelMap model, RedirectAttributes attr) {
+    public String cadastrar(@Valid Empresa empresa, BindingResult result, ModelMap model, RedirectAttributes attr) {
+        if (result.hasErrors())
+            return "empresa/form";
+
         if (usuarioService.buscarPorEmail(empresa.getEmail()) != null) {
-            model.addAttribute("erro", "Este e-mail já está em uso por outra conta.");
-            return "form";
+            model.addAttribute("erro", getMessage("empresa.flash.email.inUse"));
+            return "empresa/form";
         }
 
         try {
             empresaService.salvar(empresa);
-            attr.addFlashAttribute("sucesso", "Empresa cadastrada com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("empresa.flash.create.success"));
             return "redirect:/empresas/listar";
         }
         catch (Exception e) {
-            model.addAttribute("erro", "Não foi possível cadastrar a empresa. Verifique se o CNPJ já está em uso.");
-            return "form";
+            model.addAttribute("erro", getMessage("empresa.flash.create.error"));
+            return "empresa/form";
         }
     }
 
     @GetMapping("/editar/{id}")
     public String formEdicao(@PathVariable Long id, ModelMap model) {
         model.addAttribute("empresa", empresaService.buscarPorId(id));
-        return "form";
+        return "empresa/form";
     }
 
     @PostMapping("/editar")
-    public String editar(Empresa empresa, ModelMap model, RedirectAttributes attr) {
+    public String editar(@Valid Empresa empresa, BindingResult result, ModelMap model, RedirectAttributes attr) {
+        if (result.hasErrors())
+            return "empresa/form";
+
         Usuario usuarioExistente = usuarioService.buscarPorEmail(empresa.getEmail());
         if (usuarioExistente != null && !usuarioExistente.getId().equals(empresa.getId())) {
-            model.addAttribute("erro", "Este e-mail já está em uso por outra conta.");
-            return "form";
+            model.addAttribute("erro", getMessage("empresa.flash.email.inUse"));
+            return "empresa/form";
         }
 
         try {
             empresaService.atualizar(empresa);
-            attr.addFlashAttribute("sucesso", "Empresa atualizada com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("empresa.flash.update.success"));
             return "redirect:/empresas/listar";
         }
         catch (Exception e) {
-            model.addAttribute("erro", "Erro ao atualizar. Verifique se o CNPJ informado já pertence a outra conta.");
-            return "form";
+            model.addAttribute("erro", getMessage("empresa.flash.update.error"));
+            return "empresa/form";
         }
     }
 
     @GetMapping("/excluir/{id}")
     public String excluir(@PathVariable Long id, RedirectAttributes attr) {
         if (empresaService.excluir(id))
-            attr.addFlashAttribute("sucesso", "Empresa excluída com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("empresa.flash.delete.success"));
         else
-            attr.addFlashAttribute("erro", "Não é possível excluir esta empresa pois ela possui programas vinculados.");
+            attr.addFlashAttribute("erro", getMessage("empresa.flash.delete.error"));
 
         return "redirect:/empresas/listar";
     }

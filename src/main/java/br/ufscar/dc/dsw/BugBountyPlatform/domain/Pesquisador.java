@@ -1,6 +1,10 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.br.CPF;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,15 +13,21 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "id")
 public class Pesquisador extends Usuario {
 
-    @Column(nullable = false, unique = true, length = 14)
+    @NotBlank(message = "{pesquisador.validation.cpf.notBlank}")
+    //@CPF(message = "CPF inválido.")
+    @Column(nullable = false, unique = true, length = 11)
     private String cpf;
 
+    @NotBlank(message = "{pesquisador.validation.nome.notBlank}")
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, length = 16)
+    @NotBlank(message = "{pesquisador.validation.telefone.notBlank}")
+    @Pattern(regexp = "\\d{10,11}", message = "{pesquisador.validation.telefone.pattern}")
+    @Column(nullable = false, length = 11)
     private String telefone;
 
+    @NotBlank(message = "{pesquisador.validation.sexo.notBlank}")
     @Column(nullable = false, length = 1)
     private String sexo;
 

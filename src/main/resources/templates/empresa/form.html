@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title th:text="${empresa.id == null} ? 'Cadastrar Empresa' : 'Editar Empresa'">Cadastro de Empresa</title>
+    <title th:text="${empresa.id == null} ? #{empresa.form.title.new} : #{empresa.form.title.edit}"></title>
 </head>
 <body>
 <section layout:fragment="content">
@@ -9,7 +9,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0" th:text="${empresa.id == null} ? 'Registar Nova Empresa' : 'Editar Dados da Empresa'">Cadastro de Empresa</h4>
+                    <h4 class="mb-0" th:text="${empresa.id == null} ? #{empresa.form.header.new} : #{empresa.form.header.edit}"></h4>
                 </div>
                 <div class="card-body">
 
@@ -20,41 +20,46 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="nome" class="form-label">Nome da Empresa</label>
-                                <input type="text" id="nome" th:field="*{nome}" class="form-control" required />
+                                <label for="nome" class="form-label" th:text="#{empresa.form.label.name}"></label>
+                                <input type="text" id="nome" th:field="*{nome}" class="form-control" th:errorclass="is-invalid" required />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="cnpj" class="form-label">CNPJ</label>
-                                <input type="text" id="cnpj" th:field="*{cnpj}" class="form-control cnpj" required />
+                                <label for="cnpj" class="form-label" th:text="#{empresa.form.label.cnpj}"></label>
+                                <input type="text" id="cnpj" th:field="*{cnpj}" class="form-control cnpj" th:errorclass="is-invalid" required th:placeholder="#{empresa.form.placeholder.cnpj}" />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('cnpj')}" th:errors="*{cnpj}"></div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">E-mail</label>
-                                <input type="email" id="email" th:field="*{email}" class="form-control" required />
+                                <label for="email" class="form-label" th:text="#{empresa.form.label.email}"></label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control" th:errorclass="is-invalid" required />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="setor" class="form-label">Setor de Atuação</label>
-                                <input type="text" id="setor" th:field="*{setor}" class="form-control" required />
+                                <label for="setor" class="form-label" th:text="#{empresa.form.label.sector}"></label>
+                                <input type="text" id="setor" th:field="*{setor}" class="form-control" th:errorclass="is-invalid" required />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('setor')}" th:errors="*{setor}"></div>
                             </div>
                         </div>
 
                         <div class="mb-3" th:if="${empresa.id == null}">
-                            <label for="senha" class="form-label">Senha </label>
+                            <label for="senha" class="form-label" th:text="#{empresa.form.label.password}"></label>
                             <input type="password" id="senha" th:field="*{senha}" class="form-control" required />
                         </div>
 
                         <div class="mb-3">
-                            <label for="descricao" class="form-label">Descrição do Programa</label>
-                            <textarea id="descricao" th:field="*{descricao}" class="form-control" rows="3"></textarea>
+                            <label for="descricao" class="form-label" th:text="#{empresa.form.label.description}"></label>
+                            <textarea id="descricao" th:field="*{descricao}" class="form-control" rows="3"
+                                      th:placeholder="#{empresa.form.placeholder.description}"></textarea>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a th:href="@{/empresas/listar}" class="btn btn-secondary">Voltar</a>
-                            <button type="submit" class="btn btn-success">Salvar</button>
+                            <a th:href="@{/empresas/listar}" class="btn btn-secondary" th:text="#{empresa.form.btn.back}"></a>
+                            <button type="submit" class="btn btn-success" th:text="#{empresa.form.btn.save}"></button>
                         </div>
                     </form>
 

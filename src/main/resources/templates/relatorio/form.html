@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title>Submeter Relatório</title>
+    <title th:text="#{relatorio.form.title}"></title>
 </head>
 <body>
 <section layout:fragment="content">
@@ -9,7 +9,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Submeter Prova de Conceito (PoC)</h4>
+                    <h4 class="mb-0" th:text="#{relatorio.form.header}"></h4>
                 </div>
                 <div class="card-body">
 
@@ -21,20 +21,20 @@
                     <form th:action="@{/relatorios/cadastrar}" method="POST" enctype="multipart/form-data">
 
                         <div class="mb-4 bg-light p-3 rounded border">
-                            <h6 class="text-muted mb-1">Programa Alvo:</h6>
+                            <h6 class="text-muted mb-1" th:text="#{relatorio.form.target}"></h6>
                             <h5 class="mb-0 text-dark" th:text="${programa.titulo + ' - ' + programa.empresa.nome}"></h5>
                         </div>
 
                         <input type="hidden" name="programaId" th:value="${programa.id}" />
 
                         <div class="mb-4">
-                            <label for="file" class="form-label">Arquivo de Evidência (PDF, máximo 10MB)</label>
+                            <label for="file" class="form-label" th:text="#{relatorio.form.label.file}"></label>
                             <input type="file" id="file" name="file" class="form-control" accept="application/pdf" required />
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a th:href="@{/programas/detalhes/{id}(id=${programa.id})}" class="btn btn-secondary">Voltar</a>
-                            <button type="submit" class="btn btn-success">Enviar Relatório</button>
+                            <a th:href="@{/programas/detalhes/{id}(id=${programa.id})}" class="btn btn-secondary" th:text="#{relatorio.form.btn.back}"></a>
+                            <button type="submit" class="btn btn-success" th:text="#{relatorio.form.btn.submit}"></button>
                         </div>
                     </form>
 

@@ -10,6 +10,8 @@ import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IRelatorioService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -34,6 +36,13 @@ public class RelatorioController {
     @Autowired
     private IUsuarioService usuarioService;
 
+    @Autowired
+    private MessageSource messageSource;
+
+    private String getMessage(String key) {
+        return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
+    }
+
     private Usuario getUsuarioLogado() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser"))
@@ -44,7 +53,6 @@ public class RelatorioController {
     @GetMapping("/listar")
     public String listar(ModelMap model) {
         Usuario usuarioLogado = getUsuarioLogado();
-
         if (usuarioLogado != null) {
             if (usuarioLogado.getRole().equals("ROLE_PESQUISADOR"))
                 model.addAttribute("relatorios", relatorioService.buscarPorPesquisador((Pesquisador) usuarioLogado));
@@ -59,18 +67,18 @@ public class RelatorioController {
     @GetMapping("/cadastrar")
     public String exibirFormCadastro(@RequestParam(name = "programaId", required = false) Long programaId, ModelMap model, RedirectAttributes attr) {
         if (programaId == null) {
-            attr.addFlashAttribute("erro", "Por favor, acesse os detalhes de um programa para submeter um relatório.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.select.program"));
             return "redirect:/programas/listar";
         }
 
         Programa programa = programaService.buscarPorId(programaId);
         if (programa == null) {
-            attr.addFlashAttribute("erro", "Programa alvo não encontrado.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.program.notFound"));
             return "redirect:/programas/listar";
         }
 
         if (programa.getDataLimite().isBefore(LocalDate.now())) {
-            attr.addFlashAttribute("erro", "O prazo para submissão de relatórios neste programa já foi encerrado.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.program.closed"));
             return "redirect:/programas/detalhes/" + programa.getId();
         }
 
@@ -84,27 +92,26 @@ public class RelatorioController {
 
         Usuario usuarioLogado = getUsuarioLogado();
         if (usuarioLogado == null || !usuarioLogado.getRole().equals("ROLE_PESQUISADOR")) {
-            attr.addFlashAttribute("erro", "Acesso negado.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.access.denied"));
             return "redirect:/relatorios/listar";
         }
 
         if (file.isEmpty()) {
-            attr.addFlashAttribute("erro", "Por favor, anexe o arquivo PDF contendo a Prova de Conceito.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.file.empty"));
             return "redirect:/relatorios/cadastrar?programaId=" + programaId;
         }
 
         try {
             relatorioService.submeter(usuarioLogado.getId(), programaId, file.getOriginalFilename(), file.getInputStream());
-            attr.addFlashAttribute("sucesso", "Prova de Conceito anexada e enviada para triagem.");
+            attr.addFlashAttribute("sucesso", getMessage("relatorio.flash.create.success"));
             return "redirect:/relatorios/listar";
-
         }
         catch (IllegalStateException | IllegalArgumentException e) {
-            attr.addFlashAttribute("erro", e.getMessage());
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.create.validation"));
             return "redirect:/relatorios/cadastrar?programaId=" + programaId;
         }
         catch (Exception e) {
-            attr.addFlashAttribute("erro", "Ocorreu um erro interno no servidor ao tentar processar o upload.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.create.error"));
             return "redirect:/relatorios/cadastrar?programaId=" + programaId;
         }
     }
@@ -115,17 +122,24 @@ public class RelatorioController {
                           @RequestParam(value = "recompensa", required = false) BigDecimal recompensa,
                           RedirectAttributes attr) {
 
+        if (status == StatusRelatorio.VULNERAVEL) {
+            if (severidade == null || recompensa == null || recompensa.compareTo(BigDecimal.ZERO) < 0) {
+                attr.addFlashAttribute("erro", getMessage("relatorio.flash.eval.invalid"));
+                return "redirect:/relatorios/listar";
+            }
+        }
+
         relatorioService.avaliar(id, status, severidade, recompensa);
-        attr.addFlashAttribute("sucesso", "Avaliação do relatório registrada com sucesso.");
+        attr.addFlashAttribute("sucesso", getMessage("relatorio.flash.eval.success"));
         return "redirect:/relatorios/listar";
     }
 
     @GetMapping("/excluir/{id}")
     public String excluir(@PathVariable Long id, RedirectAttributes attr) {
         if (relatorioService.excluir(id))
-            attr.addFlashAttribute("sucesso", "Relatório excluído com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("relatorio.flash.delete.success"));
         else
-            attr.addFlashAttribute("erro", "Não foi possível excluir o relatório devido a restrições de integridade.");
+            attr.addFlashAttribute("erro", getMessage("relatorio.flash.delete.error"));
 
         return "redirect:/relatorios/listar";
     }

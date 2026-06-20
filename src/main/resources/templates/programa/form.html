@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title th:text="${programa.id == null} ? 'Cadastrar Programa' : 'Editar Programa'">Cadastro de Programa</title>
+    <title th:text="${programa.id == null} ? #{programa.form.title.new} : #{programa.form.title.edit}"></title>
 </head>
 <body>
 <section layout:fragment="content">
@@ -9,7 +9,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0" th:text="${programa.id == null} ? 'Cadastrar Novo Programa' : 'Editar Dados do Programa'">Cadastro</h4>
+                    <h4 class="mb-0" th:text="${programa.id == null} ? #{programa.form.header.new} : #{programa.form.header.edit}"></h4>
                 </div>
                 <div class="card-body">
 
@@ -19,32 +19,35 @@
                         <input type="hidden" th:field="*{id}" />
 
                         <div class="mb-3">
-                            <label for="titulo" class="form-label">Título</label>
-                            <input type="text" id="titulo" th:field="*{titulo}" class="form-control" required
-                                   placeholder="Ex: Vulnerabilidades Web - API Principal" />
+                            <label for="titulo" class="form-label" th:text="#{programa.form.label.title}"></label>
+                            <input type="text" id="titulo" th:field="*{titulo}" class="form-control" th:errorclass="is-invalid" required
+                                   th:placeholder="#{programa.form.placeholder.title}" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="escopo" class="form-label">Escopo</label>
-                            <input type="text" id="escopo" th:field="*{escopo}" class="form-control" required
-                                   placeholder="Ex: *.site.com.br, api.site.com.br" />
+                            <label for="escopo" class="form-label" th:text="#{programa.form.label.scope}"></label>
+                            <input type="text" id="escopo" th:field="*{escopo}" class="form-control" th:errorclass="is-invalid" required
+                                   th:placeholder="#{programa.form.placeholder.scope}" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('escopo')}" th:errors="*{escopo}"></div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="recompensaMaxima" class="form-label">Recompensa Máxima (R$)</label>
-                                <input type="number" step="0.01" min="0" id="recompensaMaxima" th:field="*{recompensaMaxima}" class="form-control" required />
+                                <label for="recompensaMaxima" class="form-label" th:text="#{programa.form.label.reward}"></label>
+                                <input type="number" step="0.01" min="0" id="recompensaMaxima" th:field="*{recompensaMaxima}" class="form-control" th:errorclass="is-invalid" required />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('recompensaMaxima')}" th:errors="*{recompensaMaxima}"></div>
                             </div>
-
                             <div class="col-md-6 mb-3">
-                                <label for="dataLimite" class="form-label">Data Limite de Submissão</label>
-                                <input type="date" id="dataLimite" name="dataLimite" th:value="${programa.dataLimite}" class="form-control" required />
+                                <label for="dataLimite" class="form-label" th:text="#{programa.form.label.deadline}"></label>
+                                <input type="date" id="dataLimite" name="dataLimite" th:value="${programa.dataLimite}" class="form-control" th:errorclass="is-invalid" required />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dataLimite')}" th:errors="*{dataLimite}"></div>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-3">
-                            <a th:href="@{/programas/listar}" class="btn btn-secondary">Voltar</a>
-                            <button type="submit" class="btn btn-success">Salvar</button>
+                            <a th:href="@{/programas/listar}" class="btn btn-secondary" th:text="#{programa.form.btn.back}"></a>
+                            <button type="submit" class="btn btn-success" th:text="#{programa.form.btn.save}"></button>
                         </div>
                     </form>
 

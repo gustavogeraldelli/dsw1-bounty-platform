@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title>Lista de Relatórios</title>
+    <title th:text="#{relatorio.list.title}"></title>
 </head>
 <body>
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 th:text="${#authorization.expression('hasRole(''PESQUISADOR'')')} ? 'Meus Relatórios' : 'Relatórios Submetidos'"></h2>
+        <h2 th:text="${#authorization.expression('hasRole(''PESQUISADOR'')')} ? #{relatorio.list.header.researcher} : #{relatorio.list.header.others}"></h2>
     </div>
 
     <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -22,99 +22,88 @@
         <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
             <tr>
-                <th sec:authorize="hasRole('ADMIN')">ID</th>
-                <th sec:authorize="!hasRole('PESQUISADOR')">Pesquisador</th>
-                <th>Programa</th>
-                <th sec:authorize="!hasRole('EMPRESA')">Empresa</th>
-                <th>Data</th>
-                <th>Status</th>
-                <th>Severidade</th>
-                <th>Bounty</th>
-                <th style="min-width: 250px;">Ações</th>
+                <th sec:authorize="hasRole('ADMIN')" th:text="#{relatorio.list.table.id}"></th>
+                <th sec:authorize="!hasRole('PESQUISADOR')" th:text="#{relatorio.list.table.researcher}"></th>
+                <th th:text="#{relatorio.list.table.program}"></th>
+                <th sec:authorize="!hasRole('EMPRESA')" th:text="#{relatorio.list.table.company}"></th>
+                <th th:text="#{relatorio.list.table.date}"></th>
+                <th th:text="#{relatorio.list.table.status}"></th>
+                <th th:text="#{relatorio.list.table.severity}"></th>
+                <th th:text="#{relatorio.list.table.bounty}"></th>
+                <th style="min-width: 250px;" th:text="#{relatorio.list.table.actions}"></th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="relatorio : ${relatorios}">
                 <td sec:authorize="hasRole('ADMIN')" th:text="${relatorio.id}"></td>
-
                 <td sec:authorize="!hasRole('PESQUISADOR')">
                     <div th:text="${relatorio.pesquisador.nome}"></div>
                     <div class="small text-muted" th:text="${relatorio.pesquisador.email}"></div>
                 </td>
-
                 <td th:text="${relatorio.programa.titulo}"></td>
                 <td sec:authorize="!hasRole('EMPRESA')" th:text="${relatorio.programa.empresa.nome}"></td>
                 <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
-
                 <td>
-                    <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}">Em Triagem</span>
-                    <span class="badge bg-success" th:if="${relatorio.status.name() == 'VULNERAVEL'}">Vulnerável</span>
-                    <span class="badge bg-danger" th:if="${relatorio.status.name() == 'REJEITADO'}">Rejeitado</span>
-                    <span class="badge bg-secondary" th:if="${relatorio.status.name() == 'DUPLICADO'}">Duplicado</span>
+                    <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}" th:text="#{relatorio.list.badge.triagem}"></span>
+                    <span class="badge bg-success" th:if="${relatorio.status.name() == 'VULNERAVEL'}" th:text="#{relatorio.list.badge.vulneravel}"></span>
+                    <span class="badge bg-danger" th:if="${relatorio.status.name() == 'REJEITADO'}" th:text="#{relatorio.list.badge.rejeitado}"></span>
+                    <span class="badge bg-secondary" th:if="${relatorio.status.name() == 'DUPLICADO'}" th:text="#{relatorio.list.badge.duplicado}"></span>
                 </td>
-
                 <td>
                     <span th:if="${relatorio.severidade != null}"
                           th:class="${'badge ' + (relatorio.severidade.name() == 'CRITICA' ? 'bg-danger' : (relatorio.severidade.name() == 'ALTA' ? 'bg-warning text-dark' : (relatorio.severidade.name() == 'MEDIA' ? 'bg-primary' : 'bg-info text-dark')))}"
-                          th:text="${relatorio.severidade.descricao}"></span>
+                          th:text="#{ 'relatorio.list.eval.risk.' + ${#strings.toLowerCase(relatorio.severidade.name())} }"></span>
                     <span th:if="${relatorio.severidade == null}" class="text-muted">-</span>
                 </td>
-
                 <td>
                     <span th:if="${relatorio.recompensa != null}" th:text="|R$ ${#numbers.formatDecimal(relatorio.recompensa, 1, 'POINT', 2, 'COMMA')}|" class="text-success fw-bold"></span>
                     <span th:if="${relatorio.recompensa == null}" class="text-muted">-</span>
                 </td>
-
                 <td>
                     <div class="d-flex flex-column gap-2">
-                        <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank" class="btn btn-sm btn-primary">
-                            Ver Arquivo
-                        </a>
+                        <a th:href="@{/{caminho}(caminho=${relatorio.caminhoArquivoPoc})}" target="_blank" class="btn btn-sm btn-primary" th:text="#{relatorio.list.btn.view}"></a>
 
                         <div sec:authorize="hasRole('EMPRESA')" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}" class="card p-2 border-secondary bg-light shadow-sm">
-                            <span class="small fw-bold mb-2 text-center text-muted">Ações de Avaliação</span>
-
+                            <span class="small fw-bold mb-2 text-center text-muted" th:text="#{relatorio.list.eval.header}"></span>
                             <form th:action="@{/relatorios/avaliar}" method="POST" class="mb-2">
                                 <input type="hidden" name="id" th:value="${relatorio.id}" />
                                 <input type="hidden" name="status" value="VULNERAVEL" />
-
                                 <div class="input-group input-group-sm mb-2">
                                     <select name="severidade" class="form-select" required>
-                                        <option value="" disabled selected>Risco...</option>
-                                        <option value="BAIXA">Baixa</option>
-                                        <option value="MEDIA">Média</option>
-                                        <option value="ALTA">Alta</option>
-                                        <option value="CRITICA">Crítica</option>
+                                        <option value="" disabled selected th:text="#{relatorio.list.eval.risk.select}"></option>
+                                        <option value="BAIXA" th:text="#{relatorio.list.eval.risk.baixa}"></option>
+                                        <option value="MEDIA" th:text="#{relatorio.list.eval.risk.media}"></option>
+                                        <option value="ALTA" th:text="#{relatorio.list.eval.risk.alta}"></option>
+                                        <option value="CRITICA" th:text="#{relatorio.list.eval.risk.critica}"></option>
                                     </select>
                                     <input type="number" name="recompensa" class="form-control" placeholder="R$" step="0.01" required>
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-success w-100">Aceitar</button>
+                                <button type="submit" class="btn btn-sm btn-success w-100" th:text="#{relatorio.list.eval.btn.accept}"></button>
                             </form>
-
                             <div class="d-flex gap-1">
                                 <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
                                     <input type="hidden" name="id" th:value="${relatorio.id}" />
                                     <input type="hidden" name="status" value="REJEITADO" />
-                                    <button type="submit" class="btn btn-sm btn-danger w-100">Rejeitar</button>
+                                    <button type="submit" class="btn btn-sm btn-danger w-100" th:text="#{relatorio.list.eval.btn.reject}"></button>
                                 </form>
                                 <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
                                     <input type="hidden" name="id" th:value="${relatorio.id}" />
                                     <input type="hidden" name="status" value="DUPLICADO" />
-                                    <button type="submit" class="btn btn-sm btn-secondary w-100">Duplicado</button>
+                                    <button type="submit" class="btn btn-sm btn-secondary w-100" th:text="#{relatorio.list.eval.btn.duplicate}"></button>
                                 </form>
                             </div>
                         </div>
 
                         <a sec:authorize="hasRole('ADMIN')" class="btn btn-sm btn-danger"
                            th:href="@{/relatorios/excluir/{id}(id=${relatorio.id})}"
-                           onclick="return confirm('ATENÇÃO: Tem certeza que deseja excluir este relatório permanentemente do sistema?');">
-                            Excluir Registro
-                        </a>
+                           th:data-confirm="#{relatorio.list.confirm.delete}"
+                           onclick="return confirm(this.getAttribute('data-confirm'));"
+                           th:text="#{relatorio.list.btn.delete}"></a>
                     </div>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(relatorios)}">
-                <td colspan="9" class="text-center">Nenhum relatório encontrado.</td>
+                <td colspan="9" class="text-center" th:text="#{relatorio.list.empty}"></td>
             </tr>
             </tbody>
         </table>

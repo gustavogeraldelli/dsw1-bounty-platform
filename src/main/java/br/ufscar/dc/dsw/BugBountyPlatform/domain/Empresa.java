@@ -1,6 +1,9 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import org.hibernate.validator.constraints.br.CNPJ;
+
 import java.util.List;
 
 @Entity
@@ -8,15 +11,19 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "id")
 public class Empresa extends Usuario {
 
+    @NotBlank(message = "{empresa.validation.nome.notBlank}")
     @Column(nullable = false, length = 150)
     private String nome;
 
-    @Column(nullable = false, unique = true, length = 18)
+    @NotBlank(message = "{empresa.validation.cnpj.notBlank}")
+    //@CNPJ(message = "CNPJ inválido.")
+    @Column(nullable = false, unique = true, length = 14)
     private String cnpj;
 
     @Column(length = 500)
     private String descricao;
 
+    @NotBlank(message = "{empresa.validation.setor.notBlank}")
     @Column(nullable = false, length = 50)
     private String setor;
 

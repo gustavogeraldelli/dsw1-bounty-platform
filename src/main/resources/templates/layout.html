@@ -17,29 +17,36 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/empresas/listar}">Empresas</a>
+                    <a class="nav-link" th:href="@{/empresas/listar}" th:text="#{nav.empresas}">Empresas</a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/pesquisadores/listar}">Pesquisadores</a>
+                    <a class="nav-link" th:href="@{/pesquisadores/listar}" th:text="#{nav.pesquisadores}">Pesquisadores</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/programas/listar}">Programas</a>
+                    <a class="nav-link" th:href="@{/programas/listar}" th:text="#{nav.programas}">Programas</a>
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" th:href="@{/relatorios/listar}">Relatórios</a>
+                    <a class="nav-link" th:href="@{/relatorios/listar}" th:text="#{nav.relatorios}">Relatórios</a>
                 </li>
             </ul>
 
             <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-3">
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-sm btn-outline-light" th:href="@{''(lang='pt')}">PT</a>
+                        <a class="btn btn-sm btn-outline-light" th:href="@{''(lang='en')}">EN</a>
+                    </div>
+                </li>
+
                 <li class="nav-item" sec:authorize="isAnonymous()">
-                    <a class="nav-link" th:href="@{/login}">Entrar</a>
+                    <a class="nav-link" th:href="@{/login}" th:text="#{nav.login}">Entrar</a>
                 </li>
                 <li class="nav-item" sec:authorize="isAnonymous()">
-                    <a class="btn btn-outline-light btn-sm ms-2" th:href="@{/cadastrar}">Cadastrar como pesquisador</a>
+                    <a class="btn btn-outline-light btn-sm ms-2" th:href="@{/cadastrar}" th:text="#{nav.register}">Cadastrar como pesquisador</a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('PESQUISADOR')">
-                    <a class="nav-link" th:href="@{/perfil}">Meu Perfil</a>
+                    <a class="nav-link" th:href="@{/perfil}" th:text="#{nav.profile}">Meu Perfil</a>
                 </li>
 
                 <li class="nav-item" sec:authorize="isAuthenticated()">
@@ -47,7 +54,7 @@
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
                     <form th:action="@{/logout}" method="post" class="d-inline m-0 p-0">
-                        <button type="submit" class="btn btn-link nav-link text-danger">Sair</button>
+                        <button type="submit" class="btn btn-link nav-link text-danger" th:text="#{nav.logout}">Sair</button>
                     </form>
                 </li>
             </ul>
@@ -59,5 +66,21 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/imask"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.cpf').forEach(function(el) { IMask(el, { mask: '000.000.000-00' }); });
+        document.querySelectorAll('.cnpj').forEach(function(el) { IMask(el, { mask: '00.000.000/0000-00' }); });
+        document.querySelectorAll('.telefone').forEach(function(el) { IMask(el, { mask: '(00) 00000-0000' }); });
+
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function() {
+                form.querySelectorAll('.cpf, .cnpj, .telefone').forEach(function(input) {
+                    input.value = input.value.replace(/\D/g, '');
+                });
+            });
+        });
+    });
+</script>
 </body>
 </html>

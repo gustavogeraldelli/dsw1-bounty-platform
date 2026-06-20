@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <title>Programas</title>
+    <title th:text="#{programa.list.title}"></title>
 </head>
 <body>
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Programas de Bug Bounty</h2>
-        <a class="btn btn-primary" sec:authorize="hasRole('EMPRESA')" th:href="@{/programas/cadastrar}">Cadastrar Novo Programa</a>
+        <h2 th:text="#{programa.list.header}"></h2>
+        <a class="btn btn-primary" sec:authorize="hasRole('EMPRESA')" th:href="@{/programas/cadastrar}" th:text="#{programa.list.btn.new}"></a>
     </div>
 
     <div class="card bg-light mb-4 border-0 shadow-sm" sec:authorize="!hasRole('EMPRESA')">
         <div class="card-body py-3">
             <form th:action="@{/programas/listar}" method="GET" class="row g-2 align-items-center">
                 <div class="col-auto">
-                    <label for="busca" class="col-form-label fw-bold">Pesquisar:</label>
+                    <label for="busca" class="col-form-label fw-bold" th:text="#{programa.list.search.label}"></label>
                 </div>
                 <div class="col-auto flex-grow-1">
-                    <input type="text" name="busca" id="busca" class="form-control" placeholder="Buscar por Empresa ou Setor..." th:value="${param.busca}">
+                    <input type="text" name="busca" id="busca" class="form-control" th:placeholder="#{programa.list.search.placeholder}" th:value="${param.busca}">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-secondary">Filtrar</button>
-                    <a th:href="@{/programas/listar}" class="btn btn-outline-secondary" th:if="${param.busca != null}">Limpar</a>
+                    <button type="submit" class="btn btn-secondary" th:text="#{programa.list.btn.filter}"></button>
+                    <a th:href="@{/programas/listar}" class="btn btn-outline-secondary" th:if="${param.busca != null}" th:text="#{programa.list.btn.clear}"></a>
                 </div>
             </form>
         </div>
@@ -39,56 +39,56 @@
     <table class="table table-hover align-middle">
         <thead class="table-dark">
         <tr>
-            <th sec:authorize="hasRole('ADMIN')">ID</th>
-            <th>Título</th>
-            <th>Empresa</th>
-            <th sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')">Escopo</th>
-            <th>Recompensa Máx.</th>
-            <th>Data Limite</th>
-            <th sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')">Ações</th>
+            <th sec:authorize="hasRole('ADMIN')" th:text="#{programa.list.table.id}"></th>
+            <th th:text="#{programa.list.table.title}"></th>
+            <th th:text="#{programa.list.table.company}"></th>
+            <th sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')" th:text="#{programa.list.table.scope}"></th>
+            <th th:text="#{programa.list.table.reward}"></th>
+            <th th:text="#{programa.list.table.deadline}"></th>
+            <th sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')" th:text="#{programa.list.table.actions}"></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="programa : ${programas}"
             th:classappend="${programa.dataLimite.isBefore(#temporals.createToday())} ? 'table-secondary text-muted' : ''">
-
             <td sec:authorize="hasRole('ADMIN')" th:text="${programa.id}"></td>
-
             <td>
                 <a th:href="@{/programas/detalhes/{id}(id=${programa.id})}"
                    th:text="${programa.titulo}"
                    th:classappend="${programa.dataLimite.isBefore(#temporals.createToday())} ? 'text-secondary text-decoration-none' : 'text-decoration-none fw-bold'"></a>
             </td>
-
             <td th:text="${programa.empresa.nome}"></td>
             <td sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')" th:text="${programa.escopo}"></td>
-
             <td th:text="|R$ ${#numbers.formatDecimal(programa.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"
                 th:classappend="${programa.dataLimite.isBefore(#temporals.createToday())} ? '' : 'text-success fw-bold'"></td>
-
             <td>
                 <span th:text="${#temporals.format(programa.dataLimite, 'dd/MM/yyyy')}"></span>
-                <span th:if="${programa.dataLimite.isBefore(#temporals.createToday())}" class="badge bg-danger ms-1 opacity-75">Encerrado</span>
+                <span th:if="${programa.dataLimite.isBefore(#temporals.createToday())}" class="badge bg-danger ms-1 opacity-75" th:text="#{programa.list.badge.closed}"></span>
             </td>
-
             <td sec:authorize="hasAnyRole('EMPRESA', 'ADMIN')">
                 <div class="d-flex gap-2">
-                    <a th:href="@{/programas/editar/{id}(id=${programa.id})}" class="btn btn-sm btn-primary">Editar</a>
+                    <a th:if="${!programa.dataLimite.isBefore(#temporals.createToday())}"
+                       th:href="@{/programas/editar/{id}(id=${programa.id})}" class="btn btn-sm btn-primary" th:text="#{programa.list.btn.edit}"></a>
+
+                    <button th:if="${programa.dataLimite.isBefore(#temporals.createToday())}"
+                            class="btn btn-sm btn-secondary" disabled th:title="#{programa.list.blocked.edit}" th:text="#{programa.list.btn.edit}"></button>
 
                     <a th:if="${#lists.isEmpty(programa.relatorios)}"
                        th:href="@{/programas/excluir/{id}(id=${programa.id})}"
                        class="btn btn-sm btn-danger"
-                       onclick="return confirm('Tem certeza que deseja excluir?');">Excluir</a>
+                       th:data-confirm="#{programa.list.confirm.delete}"
+                       onclick="return confirm(this.getAttribute('data-confirm'));"
+                       th:text="#{programa.list.btn.delete}"></a>
 
                     <button th:unless="${#lists.isEmpty(programa.relatorios)}"
                             class="btn btn-sm btn-secondary"
                             disabled
-                            title="Bloqueado: Este programa possui relatórios submetidos.">Excluir</button>
+                            th:title="#{programa.list.blocked.delete}" th:text="#{programa.list.btn.delete}"></button>
                 </div>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(programas)}">
-            <td colspan="7" class="text-center">Nenhum programa encontrado.</td>
+            <td colspan="7" class="text-center" th:text="#{programa.list.empty}"></td>
         </tr>
         </tbody>
     </table>

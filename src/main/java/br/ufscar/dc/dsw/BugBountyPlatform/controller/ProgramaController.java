@@ -5,11 +5,15 @@ import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Usuario;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IProgramaService;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IUsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -26,6 +30,13 @@ public class ProgramaController {
 
     @Autowired
     private IUsuarioService usuarioService;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    private String getMessage(String key) {
+        return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
+    }
 
     private Empresa getEmpresaLogada() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -52,8 +63,6 @@ public class ProgramaController {
         }
 
         LocalDate hoje = LocalDate.now();
-
-        // ordenação dos programas abertos
         todos.sort(Comparator.comparing((Programa p) -> p.getDataLimite().isBefore(hoje))
                 .thenComparing(Programa::getDataLimite));
 
@@ -67,15 +76,18 @@ public class ProgramaController {
     }
 
     @PostMapping("/cadastrar")
-    public String cadastrar(Programa programa, RedirectAttributes attr) {
+    public String cadastrar(@Valid Programa programa, BindingResult result, RedirectAttributes attr) {
+        if (result.hasErrors())
+            return "programa/form";
+
         Empresa empresaLogada = getEmpresaLogada();
         if (empresaLogada != null) {
             programa.setEmpresa(empresaLogada);
             programaService.salvar(programa);
-            attr.addFlashAttribute("sucesso", "Programa cadastrado com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("programa.flash.create.success"));
         }
         else {
-            attr.addFlashAttribute("erro", "Acesso negado.");
+            attr.addFlashAttribute("erro", getMessage("programa.flash.access.denied"));
         }
         return "redirect:/programas/listar";
     }
@@ -88,7 +100,12 @@ public class ProgramaController {
         Empresa empresaLogada = getEmpresaLogada();
 
         if (!isAdmin && (empresaLogada == null || !programa.getEmpresa().getId().equals(empresaLogada.getId()))) {
-            attr.addFlashAttribute("erro", "Acesso negado: Você não é o dono deste programa.");
+            attr.addFlashAttribute("erro", getMessage("programa.flash.access.denied.owner"));
+            return "redirect:/programas/listar";
+        }
+
+        if (programa.getDataLimite().isBefore(LocalDate.now())) {
+            attr.addFlashAttribute("erro", getMessage("programa.flash.edit.closed"));
             return "redirect:/programas/listar";
         }
 
@@ -97,19 +114,27 @@ public class ProgramaController {
     }
 
     @PostMapping("/editar")
-    public String editar(Programa programa, RedirectAttributes attr) {
+    public String editar(@Valid Programa programa, BindingResult result, RedirectAttributes attr) {
+        if (result.hasErrors())
+            return "programa/form";
+
         Programa progBanco = programaService.buscarPorId(programa.getId());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         Empresa empresaLogada = getEmpresaLogada();
 
+        if (progBanco.getDataLimite().isBefore(LocalDate.now())) {
+            attr.addFlashAttribute("erro", getMessage("programa.flash.update.closed"));
+            return "redirect:/programas/listar";
+        }
+
         if (isAdmin || (empresaLogada != null && progBanco.getEmpresa().getId().equals(empresaLogada.getId()))) {
             programa.setEmpresa(progBanco.getEmpresa());
             programaService.atualizar(programa);
-            attr.addFlashAttribute("sucesso", "Programa atualizado com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("programa.flash.update.success"));
         }
         else {
-            attr.addFlashAttribute("erro", "Acesso negado.");
+            attr.addFlashAttribute("erro", getMessage("programa.flash.access.denied"));
         }
         return "redirect:/programas/listar";
     }
@@ -122,14 +147,14 @@ public class ProgramaController {
         Empresa empresaLogada = getEmpresaLogada();
 
         if (!isAdmin && (empresaLogada == null || !programa.getEmpresa().getId().equals(empresaLogada.getId()))) {
-            attr.addFlashAttribute("erro", "Acesso negado.");
+            attr.addFlashAttribute("erro", getMessage("programa.flash.access.denied"));
             return "redirect:/programas/listar";
         }
 
         if (programaService.excluir(id))
-            attr.addFlashAttribute("sucesso", "Programa excluído com sucesso.");
+            attr.addFlashAttribute("sucesso", getMessage("programa.flash.delete.success"));
         else
-            attr.addFlashAttribute("erro", "Não é possível excluir este programa pois já existem relatórios vinculados a ele.");
+            attr.addFlashAttribute("erro", getMessage("programa.flash.delete.error"));
 
         return "redirect:/programas/listar";
     }
@@ -138,12 +163,11 @@ public class ProgramaController {
     public String detalhes(@PathVariable Long id, ModelMap model, RedirectAttributes attr) {
         Programa programa = programaService.buscarPorId(id);
         if (programa == null) {
-            attr.addFlashAttribute("erro", "Programa não encontrado.");
+            attr.addFlashAttribute("erro", getMessage("programa.flash.not.found"));
             return "redirect:/programas/listar";
         }
         model.addAttribute("programa", programa);
         model.addAttribute("encerrado", programa.getDataLimite().isBefore(LocalDate.now()));
-
         return "programa/detalhes";
     }
 }

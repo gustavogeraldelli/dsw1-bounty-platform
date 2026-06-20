@@ -1,6 +1,8 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,15 +16,19 @@ public class Programa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "{programa.validation.titulo.notBlank}")
     @Column(nullable = false, length = 150)
     private String titulo;
 
+    @NotBlank(message = "{programa.validation.escopo.notBlank}")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String escopo;
 
+    @NotNull(message = "{programa.validation.recompensa.notNull}")
     @Column(nullable = false)
     private BigDecimal recompensaMaxima;
 
+    @NotNull(message = "{programa.validation.dataLimite.notNull}")
     @Column(nullable = false)
     private LocalDate dataLimite;
 
