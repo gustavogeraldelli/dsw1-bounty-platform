@@ -19,8 +19,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")) // desabilitar csrf para testar api rest local
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/cadastrar", "/login").permitAll()
+
+                        .requestMatchers("/api/**").permitAll()
 
                         .requestMatchers("/programas/listar", "/programas/detalhes/**").permitAll()
                         .requestMatchers("/programas/cadastrar").hasRole("EMPRESA")
