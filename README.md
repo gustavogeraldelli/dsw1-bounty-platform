@@ -3,15 +3,14 @@
 Repositório central das entregas da disciplina de Desenvolvimento de Software para Web 1. A documentação do sistema está dividida por etapas de entrega. Clique nos títulos abaixo para expandir os detalhes técnicos e as instruções de execução.
 
 <details>
-<summary><h3>Projeto até T6 (Spring MVC e JPA)</h3></summary>
-<br>
+<summary><h3>Relatório Entrega T6 (Spring MVC e JPA)</h3></summary>
 
 #### Visão Geral
 Sistema desenvolvido para a disciplina de Desenvolvimento de Sistemas Web (DSW1). A aplicação gerencia programas de recompensas por vulnerabilidades, estabelecendo o fluxo de submissão e avaliação de relatórios entre empresas e pesquisadores de segurança.
 
 #### Tecnologias Utilizadas
 * Linguagem: Java 17
-* Framework: Spring Boot 3.x
+* Framework: Spring Boot 3
 * Arquitetura: MVC com Spring Web MVC e Thymeleaf
 * Persistência: Spring Data JPA e Hibernate
 * Banco de Dados: MySQL 8.0
@@ -77,8 +76,7 @@ A aplicação utiliza a interface `CommandLineRunner` para executar operações 
 </details>
 
 <details>
-<summary><h3>Entrega T7 (API REST)</h3></summary>
-<br>
+<summary><h3>Relatório Entrega T7 (API REST)</h3></summary>
 
 A etapa T7 introduz a camada de serviços web ao projeto, disponibilizando uma API REST para a entidade Programa sob a rota principal `/api/programas`.
 
