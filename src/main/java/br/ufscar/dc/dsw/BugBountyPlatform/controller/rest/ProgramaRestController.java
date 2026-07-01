@@ -1,7 +1,7 @@
 package br.ufscar.dc.dsw.BugBountyPlatform.controller.rest;
 
-import br.ufscar.dc.dsw.BugBountyPlatform.controller.rest.dto.ProgramaRequestDTO;
-import br.ufscar.dc.dsw.BugBountyPlatform.controller.rest.dto.ProgramaResponseDTO;
+import br.ufscar.dc.dsw.BugBountyPlatform.controller.rest.dto.programa.ProgramaRequestDTO;
+import br.ufscar.dc.dsw.BugBountyPlatform.controller.rest.dto.programa.ProgramaResponseDTO;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Empresa;
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import br.ufscar.dc.dsw.BugBountyPlatform.service.IEmpresaService;
@@ -73,13 +73,12 @@ public class ProgramaRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
         Programa existente = programaService.buscarPorId(id);
         if (existente == null)
             return ResponseEntity.notFound().build();
 
-        boolean excluido = programaService.excluir(id);
-        if (!excluido)
+        if (!programaService.excluir(id))
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
         return ResponseEntity.noContent().build();

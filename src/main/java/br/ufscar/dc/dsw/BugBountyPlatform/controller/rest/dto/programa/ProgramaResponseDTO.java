@@ -1,4 +1,4 @@
-package br.ufscar.dc.dsw.BugBountyPlatform.controller.rest.dto;
+package br.ufscar.dc.dsw.BugBountyPlatform.controller.rest.dto.programa;
 
 import br.ufscar.dc.dsw.BugBountyPlatform.domain.Programa;
 import java.math.BigDecimal;

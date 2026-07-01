@@ -78,14 +78,14 @@ A aplicação utiliza a interface `CommandLineRunner` para executar operações 
 <details>
 <summary><h3>Relatório Entrega T7 (API REST)</h3></summary>
 
-A etapa T7 introduz a camada de serviços web ao projeto, disponibilizando uma API REST para a entidade Programa sob a rota principal `/api/programas`.
+A etapa T7 introduz a camada de serviços web ao projeto, disponibilizando uma API REST para as entidades Programa, Empresa, Pesquisador e Relatório sob a rota principal `/api`.
 
-O controlador responsável foi isolado no pacote `controller.rest`, separando o tráfego de dados via JSON dos controladores tradicionais que renderizam as views do Thymeleaf. Para otimizar a comunicação e não enviar dados desnecessários pela rede, a aplicação utiliza Records do Java como Data Transfer Objects (DTOs), formatando apenas as informações exatas que o cliente precisa receber ou enviar.
+Os controladores responsáveis foram isolados no pacote `controller.rest`, separando o tráfego de dados via JSON dos controladores tradicionais que renderizam as views do Thymeleaf. Para otimizar a comunicação e não enviar dados desnecessários pela rede, a aplicação utiliza Records do Java como Data Transfer Objects (DTOs), formatando apenas as informações exatas que o cliente precisa receber ou enviar.
 
 Além disso, o filtro do Spring Security foi ajustado para liberar o tráfego e desabilitar a proteção CSRF especificamente para o escopo desta API.
 
 Para a execução e avaliação dos endpoints, acesse o **[diretório /api](./api)** na raiz deste repositório. Lá você encontrará:
-* A coleção do Postman (`.json`) configurada para a validação automatizada das requisições.
-* O arquivo `README.md` interno detalhando o mapeamento dos testes, que cobrem o fluxo padrão de CRUD e as respostas de exceç
+* A coleção do Postman (`.json`) configurada para a validação das requisições.
+* O arquivo `README.md` interno detalhando o mapeamento dos testes, que cobrem o fluxo padrão de CRUD e as respostas de exceções.
 
 </details>
