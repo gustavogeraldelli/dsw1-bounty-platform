@@ -10,6 +10,7 @@ public record ProgramaResponseDTO(
         String escopo,
         BigDecimal recompensaMaxima,
         LocalDate dataLimite,
+        Long empresaId,
         String nomeEmpresa
 ) {
     public static ProgramaResponseDTO from(Programa programa) {
@@ -19,6 +20,7 @@ public record ProgramaResponseDTO(
                 programa.getEscopo(),
                 programa.getRecompensaMaxima(),
                 programa.getDataLimite(),
+                programa.getEmpresa() != null ? programa.getEmpresa().getId() : null, // Adicionado aqui
                 programa.getEmpresa() != null ? programa.getEmpresa().getNome() : null
         );
     }

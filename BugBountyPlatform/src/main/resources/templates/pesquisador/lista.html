@@ -26,6 +26,7 @@
             <th th:text="#{pesquisador.list.table.cpf}"></th>
             <th th:text="#{pesquisador.list.table.email}"></th>
             <th th:text="#{pesquisador.list.table.phone}"></th>
+            <th th:text="#{pesquisador.form.label.birthdate}"></th>
             <th th:text="#{pesquisador.list.table.actions}"></th>
         </tr>
         </thead>
@@ -36,6 +37,7 @@
             <td th:text="${pesquisador.cpf}"></td>
             <td th:text="${pesquisador.email}"></td>
             <td th:text="${pesquisador.telefone}"></td>
+            <td th:text="${#temporals.format(pesquisador.dataNascimento, 'dd/MM/yyyy')}"></td>
             <td>
                 <a class="btn btn-sm btn-primary" th:href="@{/pesquisadores/editar/{id}(id=${pesquisador.id})}" th:text="#{pesquisador.list.btn.edit}"></a>
 

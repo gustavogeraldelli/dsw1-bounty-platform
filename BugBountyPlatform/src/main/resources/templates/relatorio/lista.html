@@ -25,7 +25,6 @@
                 <th sec:authorize="hasRole('ADMIN')" th:text="#{relatorio.list.table.id}"></th>
                 <th sec:authorize="!hasRole('PESQUISADOR')" th:text="#{relatorio.list.table.researcher}"></th>
                 <th th:text="#{relatorio.list.table.program}"></th>
-                <th sec:authorize="!hasRole('EMPRESA')" th:text="#{relatorio.list.table.company}"></th>
                 <th th:text="#{relatorio.list.table.date}"></th>
                 <th th:text="#{relatorio.list.table.status}"></th>
                 <th th:text="#{relatorio.list.table.severity}"></th>
@@ -40,8 +39,10 @@
                     <div th:text="${relatorio.pesquisador.nome}"></div>
                     <div class="small text-muted" th:text="${relatorio.pesquisador.email}"></div>
                 </td>
-                <td th:text="${relatorio.programa.titulo}"></td>
-                <td sec:authorize="!hasRole('EMPRESA')" th:text="${relatorio.programa.empresa.nome}"></td>
+                <td>
+                    <div th:text="${relatorio.programa.titulo}"></div>
+                    <div class="small text-muted" sec:authorize="!hasRole('EMPRESA')" th:text="${relatorio.programa.empresa.nome}"></div>
+                </td>
                 <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
                 <td>
                     <span class="badge bg-warning text-dark" th:if="${relatorio.status.name() == 'EM_TRIAGEM'}" th:text="#{relatorio.list.badge.triagem}"></span>
