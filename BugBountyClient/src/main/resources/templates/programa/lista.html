@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Programas</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+        <h2>Programas de Bug Bounty</h2>
+        <a class="btn btn-primary" th:href="@{/programas/cadastrar}">Novo Programa</a>
+    </div>
+
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Empresa</th>
+            <th>Escopo</th>
+            <th>Recompensa Máx.</th>
+            <th>Data Limite</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="prog : ${programas}"
+            th:classappend="${prog.dataLimite.isBefore(#temporals.createToday())} ? 'table-secondary text-muted' : ''">
+            <td th:text="${prog.id}"></td>
+            <td th:text="${prog.titulo}"></td>
+            <td th:text="${prog.nomeEmpresa}"></td>
+            <td th:text="${prog.escopo}"></td>
+            <td th:text="|R$ ${#numbers.formatDecimal(prog.recompensaMaxima, 1, 'POINT', 2, 'COMMA')}|"
+                th:classappend="${prog.dataLimite.isBefore(#temporals.createToday())} ? '' : 'text-success fw-bold'"></td>
+            <td>
+                <span th:text="${#temporals.format(prog.dataLimite, 'dd/MM/yyyy')}"></span>
+                <span th:if="${prog.dataLimite.isBefore(#temporals.createToday())}" class="badge bg-danger ms-1 opacity-75">Encerrado</span>
+            </td>
+            <td>
+                <div class="d-flex gap-2">
+                    <a th:if="${!prog.dataLimite.isBefore(#temporals.createToday())}" th:href="@{/programas/editar/{id}(id=${prog.id})}" class="btn btn-sm btn-primary">Editar</a>
+                    <button th:if="${prog.dataLimite.isBefore(#temporals.createToday())}" class="btn btn-sm btn-secondary" disabled>Editar</button>
+                    <a th:if="${!prog.dataLimite.isBefore(#temporals.createToday())}" th:href="@{/programas/excluir/{id}(id=${prog.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Confirmar exclusão?');">Excluir</a>
+                    <button th:if="${prog.dataLimite.isBefore(#temporals.createToday())}" class="btn btn-sm btn-danger" disabled>Excluir</button>
+                </div>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(programas)}">
+            <td colspan="7" class="text-center text-muted">Nenhum programa retornado pela API.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

@@ -57,6 +57,12 @@ O teste `Excluir programa` remove um registro com sucesso, sem retornar conteúd
 ---
 
 ## Relatórios
+### GET /api/relatorios
+O teste `Relatório - Listar todos os relatórios` realiza uma requisição de listagem geral para recuperar o histórico completo de todas as submissões de vulnerabilidades cadastradas.
+
+### GET /api/relatorios/{id}
+O teste `Relatório - Buscar relatório por ID` solicita os dados detalhados de um relatório específico através do seu identificador único.
+
 ### POST /api/relatorios
 O teste `Relatório - Submeter relatório` simula o envio de uma nova submissão de vulnerabilidade (PoC). Os dados são enviados no formato `multipart/form-data`, contendo o ID do pesquisador, o ID do programa e o arquivo físico (PDF), esperando a criação do registro e o status Created.
 

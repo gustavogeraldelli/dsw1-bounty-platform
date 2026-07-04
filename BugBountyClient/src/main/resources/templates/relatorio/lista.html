@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+    <title>Relatórios</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+        <h2>Relatórios Submetidos</h2>
+        <a class="btn btn-primary" th:href="@{/relatorios/submeter}">Submeter Relatório</a>
+    </div>
+
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Pesquisador</th>
+                <th>Programa</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Severidade</th>
+                <th>Recompensa</th>
+                <th style="min-width: 260px;">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="relatorio : ${relatorios}">
+                <td th:text="${relatorio.id}"></td>
+                <td>
+                    <div th:text="${relatorio.pesquisadorNome}"></div>
+                    <div class="small text-muted" th:text="${relatorio.pesquisadorEmail}"></div>
+                </td>
+                <td>
+                    <div th:text="${relatorio.programaTitulo}"></div>
+                    <div class="small text-muted" th:text="${relatorio.empresaNome}"></div>
+                </td>
+                <td th:text="${#temporals.format(relatorio.dataSubmissao, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <span class="badge bg-warning text-dark" th:if="${relatorio.status == 'EM_TRIAGEM'}">Em Triagem</span>
+                    <span class="badge bg-success" th:if="${relatorio.status == 'VULNERAVEL'}">Vulnerável</span>
+                    <span class="badge bg-danger" th:if="${relatorio.status == 'REJEITADO'}">Rejeitado</span>
+                    <span class="badge bg-secondary" th:if="${relatorio.status == 'DUPLICADO'}">Duplicado</span>
+                </td>
+                <td>
+                    <span th:if="${relatorio.severidade != null}"
+                          th:class="${'badge ' + (relatorio.severidade == 'CRITICA' ? 'bg-danger' : (relatorio.severidade == 'ALTA' ? 'bg-warning text-dark' : (relatorio.severidade == 'MEDIA' ? 'bg-primary' : 'bg-info text-dark')))}"
+                          th:text="${#strings.capitalize(#strings.toLowerCase(relatorio.severidade))}">
+                    </span>
+                    <span th:if="${relatorio.severidade == null}" class="text-muted">-</span>
+                </td>
+                <td>
+                    <span th:if="${relatorio.recompensa != null}" th:text="|R$ ${#numbers.formatDecimal(relatorio.recompensa, 1, 'POINT', 2, 'COMMA')}|" class="text-success fw-bold"></span>
+                    <span th:if="${relatorio.recompensa == null}" class="text-muted">-</span>
+                </td>
+                <td>
+                    <div class="d-flex flex-column gap-2">
+                        <a th:href="@{'http://localhost:8080/' + ${relatorio.caminhoArquivoPoc}}" target="_blank" class="btn btn btn-sm btn-primary">Ver Arquivo</a>
+
+                        <div th:if="${relatorio.status == 'EM_TRIAGEM'}" class="card p-2 border-secondary bg-light shadow-sm">
+                            <span class="small fw-bold mb-2 text-center text-muted">Ações de Avaliação</span>
+
+                            <form th:action="@{/relatorios/avaliar}" method="POST" class="mb-2">
+                                <input type="hidden" name="id" th:value="${relatorio.id}" />
+                                <input type="hidden" name="status" value="VULNERAVEL" />
+                                <div class="input-group input-group-sm mb-2">
+                                    <select name="severidade" class="form-select" required>
+                                        <option value="" disabled selected>Severidade...</option>
+                                        <option value="BAIXA">Baixa</option>
+                                        <option value="MEDIA">Média</option>
+                                        <option value="ALTA">Alta</option>
+                                        <option value="CRITICA">Crítica</option>
+                                    </select>
+                                    <input type="number" name="recompensa" class="form-control" placeholder="R$" step="0.01" required>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-success w-100">Aceitar</button>
+                            </form>
+
+                            <div class="d-flex gap-1">
+                                <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
+                                    <input type="hidden" name="id" th:value="${relatorio.id}" />
+                                    <input type="hidden" name="status" value="REJEITADO" />
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">Rejeitar</button>
+                                </form>
+                                <form th:action="@{/relatorios/avaliar}" method="POST" class="w-50">
+                                    <input type="hidden" name="id" th:value="${relatorio.id}" />
+                                    <input type="hidden" name="status" value="DUPLICADO" />
+                                    <button type="submit" class="btn btn-sm btn-secondary w-100">Duplicado</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(relatorios)}">
+                <td colspan="8" class="text-center text-muted">Nenhum relatório encontrado na API.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>
